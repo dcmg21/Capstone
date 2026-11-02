@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPG Capstone Dashboard</title>
+<style>
+  :root{
+    --red:#CC0035; --navy:#28356A; --ink:#1c2331; --muted:#6b7280;
+    --bg:#f4f5f8; --card:#ffffff; --line:#e5e7eb;
+    --amber:#b45309; --amberbg:#fff7ed; --green:#166534; --greenbg:#ecfdf5;
+    --redbg:#fef2f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45;}
+  .wrap{max-width:1120px;margin:0 auto;padding:22px 18px 60px;}
+  header.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;
+    border-bottom:3px solid var(--red);padding-bottom:14px;margin-bottom:20px;}
+  header.top h1{margin:0;font-size:24px;color:var(--navy);}
+  header.top .sub{color:var(--muted);font-size:14px;margin-top:4px;}
+  .meta{text-align:right;font-size:13px;color:var(--muted)}
+  .meta .big{font-size:15px;color:var(--ink);font-weight:600}
+  h2{font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);
+    margin:26px 0 10px;}
+  .grid{display:grid;gap:14px;}
+  .cards{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .card .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  .card .val{font-size:16px;font-weight:600;margin-top:3px;}
+  .card .val.small{font-size:14px;font-weight:500}
+  .next{background:var(--navy);color:#fff;border:none}
+  .next .label{color:#c7d2fe}
+  .next .val{font-size:20px}
+  .next .cd{font-size:13px;color:#e0e7ff;margin-top:6px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;font-size:14px;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f8fafc;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+  .b-over{background:var(--redbg);color:var(--red)}
+  .b-soon{background:var(--amberbg);color:var(--amber)}
+  .b-ok{background:var(--greenbg);color:var(--green)}
+  .b-done{background:#eef2ff;color:var(--navy)}
+  ul.clean{list-style:none;margin:0;padding:0}
+  ul.clean li{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;font-size:14px;}
+  ul.clean li .q{color:var(--red);font-weight:700;flex:0 0 auto}
+  .todo li{cursor:pointer;user-select:none}
+  .todo input{margin-top:3px;width:16px;height:16px;flex:0 0 auto;accent-color:var(--red)}
+  .todo li.done span{text-decoration:line-through;color:var(--muted)}
+  .two{grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .files code{background:#f1f5f9;padding:1px 6px;border-radius:5px;font-size:13px}
+  .foot{margin-top:30px;color:var(--muted);font-size:12px;text-align:center}
+  .pill{font-size:12px;color:#fff;background:var(--red);padding:2px 9px;border-radius:999px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>CPG Brand-Opportunity Scoring: Capstone Dashboard</h1>
+      <div class="sub">Extending the Henderson &amp; Sadler framework for Eurpac &nbsp;|&nbsp; MSDS 6210, Fall 2026</div>
+    </div>
+    <div class="meta">
+      <div>Today: <span id="today" class="big"></span></div>
+      <div>Next due: <span id="nextDue" class="big"></span></div>
+    </div>
+  </header>
+
+  <h2>Snapshot</h2>
+  <div class="grid cards">
+    <div class="card next">
+      <div class="label">Next deadline</div>
+      <div class="val" id="nextName">-</div>
+      <div class="cd" id="nextCd"></div>
+    </div>
+    <div class="card"><div class="label">Team</div><div class="val">Drew Nunnally &amp; Devin Streeter</div></div>
+    <div class="card"><div class="label">Advisors</div><div class="val small">Dr. Bivin Sadler &amp; Kristin Henderson</div></div>
+    <div class="card"><div class="label">Sponsor</div><div class="val">Eurpac (spirits)</div></div>
+    <div class="card"><div class="label">Instructor</div><div class="val small">Jacquie Cheun-Jensen, PhD</div></div>
+  </div>
+
+  <h2>The plan in one line</h2>
+  <div class="card">Help Eurpac spot emerging spirits brands worth investing in or acquiring, by
+  completing Kristin's brand-scoring framework (the criteria she defined but did not build) and
+  exploring social/trend signals only where they help. <span class="pill">extension of published work</span></div>
+
+  <h2>Deadlines</h2>
+  <table id="ddl">
+    <thead><tr><th>Date</th><th>Deliverable</th><th style="width:130px">Countdown</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Done</h2>
+  <ul class="clean" id="done"></ul>
+
+  <h2>Action items <span style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0">(click to check off &middot; saved in your browser)</span></h2>
+  <ul class="clean todo" id="todo"></ul>
+
+  <h2>What Draft 1 needs by Mon Sept 28</h2>
+  <div class="card">
+  <b>Heads up:</b> the Sept 8 lecture called Draft 1 "your first run at a lit review," but the
+  <b>syllabus rubric grades the whole paper in early form</b>, including Methods &amp; EDA. Go by the syllabus.
+  Each item below says where it comes from.<br><br>
+
+  <b>Grading rubric</b> <span style="color:var(--muted)">[Syllabus, Table 3]</span>
+  <table style="margin:6px 0 10px;font-size:13px">
+    <tr><td>Correct template</td><td>10%</td><td>Introduction (2 to 4 pages)</td><td>10%</td></tr>
+    <tr><td><b>Problem statement &amp; advisor</b></td><td><b>20%</b></td><td>Lit review with 5 more references</td><td>10%</td></tr>
+    <tr><td>At least 5 pages</td><td>15%</td><td><b>Methods &amp; EDA</b></td><td><b>20%</b></td></tr>
+    <tr><td>Other sections outlined</td><td>10%</td><td>Spelling &amp; grammar</td><td>5%</td></tr>
+  </table>
+  <b style="color:var(--red)">No in-text citations or no APA reference list = automatic zero.</b>
+  <span style="color:var(--muted)">[Syllabus]</span><br><br>
+
+  <b>What goes in</b> <span style="color:var(--muted)">[Syllabus]</span>
+  <ul style="margin:4px 0 8px 18px;padding:0">
+    <li>Preliminary <b>abstract</b>, with placeholder sentences for the main result and conclusion</li>
+    <li><b>Introduction</b>, 2 to 4 pages (our Draft 0, revised with her feedback)</li>
+    <li><b>Near-complete literature review / background</b></li>
+    <li>Early draft sections on: the <b>techniques</b> we use, the <b>data and how it was collected</b>,
+        the <b>solution approach and how we will evaluate it</b>, and related results from prior papers</li>
+    <li>Everything else (results, discussion, ethics, conclusion) <b>outlined</b></li>
+    <li>A draft in sentences, not notes. Citations go inside the sentence, before the period</li>
+    <li>Audience: someone just starting the MSDS program. Explain the spirits domain</li>
+    <li>Recommended: have someone outside the team read the abstract and intro; Graduate Writing Center</li>
+    <li>Plagiarism = F for the course. GenAI rule: "At no point will any of the capstone research papers be
+        written by Generative AI," and AI use must be attributed</li>
+  </ul>
+
+  <b>How to write the lit review</b> <span style="color:var(--muted)">[Sept 8 class; Research Outline template]</span>
+  Organize by <b>theme</b>, not one paragraph per paper; weave several sources into each paragraph; give
+  background on the methods too; <b>end the lit review with the hypothesis</b>.<br><br>
+
+  <b>Submitting</b> <span style="color:var(--muted)">[Sept 8 class]</span>
+  Share the Word doc with her directly (Word &gt; Share). Due after class. Book the <b>required 30-minute
+  Draft 1 meeting</b> that week.<br><br>
+
+  <b>Our suggestions</b> <span style="color:var(--muted)">[Not from class. Ours.]</span>
+  <ul style="margin:4px 0 0 18px;padding:0">
+    <li>Data section: we rebuilt the spirits dataset from NIQ's raw feed (one market, 5 years, 7.3M rows)
+        and verified it matches the prior study (<code>step01_load_data.py</code>)</li>
+    <li>EDA: the weekly trend and year-over-year charts from <code>step02_eda_time.py</code></li>
+    <li>Lit review themes: (1) new product failure; (2) reading brand performance from scanner data;
+        (3) forecasting spirits demand; (4) search and social signals; (5) NEW, needs sources: labeling
+        brand outcomes and classification methods</li>
+    <li>Ask her what "5 more references" means (5 more than Draft 0?). We have 11 either way</li>
+  </ul>
+  </div>
+
+  <h2>Draft map + class logistics (from Sept 8)</h2>
+  <div class="card">
+  <b>Draft 0</b> = Introduction &nbsp;|&nbsp; <b>Draft 1</b> = Lit Review (per lecture; the syllabus rubric expects more, see above) &nbsp;|&nbsp;
+  <b>Draft 2</b> = Methods + early results &nbsp;|&nbsp; <b>Draft 3</b> = Results, Discussion, Conclusion
+  (her "first draft of the final paper").<br><br>
+  <b>20 sources minimum</b> across the whole paper (intro + lit review + discussion all count), with the lit
+  review solid by <b>Oct 18</b>. We have 11. The paper's lit review is not an annotated bibliography: weave
+  sources into <b>theme-organized</b> paragraphs, give background on the <i>methods</i> too so the reader sees
+  why ours fits, and <b>end the lit review with our hypothesis</b>. Anything we cite gets an in-text citation
+  and a reference entry; anything we read but never cite is left off entirely. If we find a fact in paper A
+  that A credits to paper B, cite both.<br><br>
+  <b>Reading fast:</b> abstract to decide if it is worth it, then intro, then jump to methods and results.
+  That is all a lit review needs.<br><br>
+  <b>Citations:</b> pick ONE in-text style (numeric or author-year) and never mix; <b>reference list in APA</b>.
+  <b>RefWorks</b> is free with your SMU account and auto-builds the bibliography. Purdue OWL for APA.
+  <b>Grammarly is allowed</b>, even when it rewrites sentences. AI may be used to find literature and trace
+  citations, not to write the paper.<br><br>
+  <b>Audience:</b> this is written for the SMU Data Science Review. The lecture said readers are data
+  scientists, so skip basics like logistic regression; the syllabus says "students just beginning the MSDS
+  program." DO explain the spirits/CPG domain they will not
+  know. Past Data Science Review papers are the models she pulls from.<br><br>
+  <b>Results:</b> unremarkable results are fine. If it does not work, say so in the discussion and make the
+  future-research section verbose.<br><br>
+  <b>Submitting:</b> share your Word doc with her directly (Word &gt; Share). She does not send a SharePoint
+  link. Required from Draft 1 on so she can comment inline. Only final presentations go to a Box link.<br><br>
+  <b>Meetings:</b> Draft 0 meeting optional; <b>Drafts 1, 2, and 3 each require one.</b> Draft 1 meeting is
+  the week of Sept 28. Librarian <b>Sylvia Jones</b> guests the Sept 14 class and will meet with teams on
+  request. Everything is due after class, never before.
+  </div>
+
+  <div class="grid two" style="margin-top:6px">
+    <div>
+      <h2>Open questions for Eurpac</h2>
+      <ul class="clean" id="qs"></ul>
+    </div>
+    <div>
+      <h2>Key decisions (full reasoning in DECISIONS.md)</h2>
+      <ul class="clean" id="dec"></ul>
+    </div>
+  </div>
+
+  <h2>Key files (this folder)</h2>
+  <table class="files">
+    <tbody id="files"></tbody>
+  </table>
+
+  <div class="foot">Living tracker &middot; last updated 2026-10-29 &middot; open this file anytime; checkboxes persist per browser.</div>
+</div>
+
+<script>
+const DEADLINES = [
+  ["2026-08-31","Pitch in class + email professor (lock group & advisors)"],
+  ["2026-09-07","Research Outline due"],
+  ["2026-09-14","Introduction / Draft 0 due"],
+  ["2026-09-28","Draft 1 due (>=5 pages, >=5 refs, APA)"],
+  ["2026-10-26","Draft 2 submitted"],
+  ["2026-11-15","Draft 3 due (>=20 pages). May also be +1 week (Nov 22); confirm"],
+  ["2026-11-18","Final presentation due"],
+  ["2026-11-20","Immersion (present, mandatory)"],
+  ["2026-12-04","Final paper due"],
+  ["2026-12-11","Journal submission due"],
+];
+const DONE = [
+  "Pitched the project in class (Aug 31) + emailed professor to lock group & advisors",
+  "Submitted the Research Outline (Sept 7), Draft 0 (Sept 14), Draft 1 (Sept 28), Draft 2 (Oct 26)",
+  "NDA signed; Eurpac approved copying the data to our machines",
+  "Rebuilt the spirits dataset from NIQ's raw feed; matches Kristin's file exactly",
+  "Rules reproduce Kristin's four labels: 90% by tier, 95% viable/not on her 112 vodka brands",
+  "Rules behave the same in all 11 categories; no seasonal bias",
+  "Prediction tested on 2025: viable 98 of top 100, growing 65 of top 100",
+  "Step 6 predicts 2026 for every brand; Eurpac method guide written",
+  "First Eurpac working call (Oct 19): extensions, survival first, broker use case, 9L case",
+];
+const TODOS = [
+  "Put the 10% size floor into step 5, run it, send the case count to Jacob for Chaz",
+  "Category context: add 'beats its own category' (Devin promised it on the call)",
+  "Compare our scores to Kristin's opportunity score; needs her un-anonymized file, ask again",
+  "Settle with Devin what 'validate beyond vodka' means (step 4 checks vs hand-labeling whiskey)",
+  "Draft 3: rewrite the abstract and intro (they still describe the old 40% label); fix the lit review typos that came back",
+  "Streamlit app for Eurpac, local only: predictions table with filters, brand chart with label and reason, how-to-read tab",
+  "Confirm Draft 3 date: Nov 15, or Nov 22 if the one-week shift applies",
+  "Production copy for Eurpac: steps 1, 2, 6 + setup page + Excel export",
+  "Ask Scott next call: acquisition and bankruptcy dates; TDP extract",
+  "Keep building toward 20 sources. We have 18",
+];
+const QUESTIONS = [
+  "For Scott: can you share dates for the 123 acquisitions and 37 bankruptcies in Kristin's data?",
+  "For Scott: what does the acquisition analysis look at, so we know what a score would need to show?",
+  "For Chaz: does the 10% floor (we will send the case count) match how you think about brand size?",
+  "Can we get the NIQ TDP extract? Your mapping tab uses it for the distribution gap",
+  "Who at Eurpac would run this each year, and do they have Python, or should SMU run it and send the file?",
+];
+const DECISIONS = [
+  "Kristin's four labels reproduced by rules; her viable = stable + growing is our 1. We invent nothing about 1 and 0.",
+  "Brand extension is the unit (Eurpac confirmed Oct 19).",
+  "Survival is the headline; growth is reported honestly as better than the obvious rule at the top of the list.",
+  "Size floor = exclude the smallest 10% of brands, replacing the fixed 250.",
+  "Steps 3 to 5 are proof, run once. Eurpac's yearly run is steps 1, 2, 6.",
+  "Plain words everywhere: code, printouts and the guide use the same names.",
+  "ROI deferred; Eurpac agrees it is too early.",
+  "Kristin's R code untouched; data never in OneDrive or git (NDA).",
+];
+const FILES = [
+  ["Team/Eurpac_Method_Guide.html","The explainer: what we did, why, results, issues, step by step"],
+  ["Code/brand_scoring_extension/","Our code: step01 load, 02 label, 03 check Kristin, 04 check categories, 05 predict, 06 predict next year"],
+  ["Code/brand_scoring_extension/DECISIONS.md","Every decision (D1 to D21) and why"],
+  ["Code/brand_scoring/","Kristin's R project (read-only)"],
+  ["Paper/Draft 2/","Draft 2 as submitted (Oct 26)"],
+  ["Team/PROJECT_STATUS.md","Running status log (text)"],
+  ["Team/Meetings/","Recordings and transcripts, incl. the Oct 19 Eurpac call"],
+];
+
+const fmt = d => d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+const DAY = 86400000;
+const now = new Date(); now.setHours(0,0,0,0);
+document.getElementById("today").textContent = fmt(now);
+
+function daysTo(iso){ const d=new Date(iso+"T00:00:00"); return Math.round((d-now)/DAY); }
+function badge(n){
+  if(n<0) return '<span class="badge b-over">'+Math.abs(n)+'d ago</span>';
+  if(n===0) return '<span class="badge b-soon">today</span>';
+  if(n<=7) return '<span class="badge b-soon">in '+n+'d</span>';
+  return '<span class="badge b-ok">in '+n+'d</span>';
+}
+// deadlines table
+const tb=document.querySelector("#ddl tbody");
+DEADLINES.forEach(([iso,name])=>{
+  const n=daysTo(iso);
+  const tr=document.createElement("tr");
+  tr.innerHTML='<td>'+fmt(new Date(iso+"T00:00:00"))+'</td><td>'+name+'</td><td>'+badge(n)+'</td>';
+  if(n<0) tr.style.opacity=".55";
+  tb.appendChild(tr);
+});
+// next due
+const upcoming=DEADLINES.map(([iso,name])=>({iso,name,n:daysTo(iso)})).filter(x=>x.n>=0).sort((a,b)=>a.n-b.n)[0];
+if(upcoming){
+  document.getElementById("nextDue").textContent=fmt(new Date(upcoming.iso+"T00:00:00"));
+  document.getElementById("nextName").textContent=upcoming.name;
+  document.getElementById("nextCd").textContent = upcoming.n===0?"due today":(upcoming.n+" day"+(upcoming.n>1?"s":"")+" left");
+}
+// todos with persistence
+let saved={};
+try{ saved=JSON.parse(localStorage.getItem("cpg_todos_v3")||"{}"); }catch(e){}
+const ul=document.getElementById("todo");
+TODOS.forEach((t,i)=>{
+  const li=document.createElement("li");
+  const done=!!saved[i];
+  li.className=done?"done":"";
+  li.innerHTML='<input type="checkbox" '+(done?"checked":"")+'><span>'+t+'</span>';
+  li.addEventListener("click",e=>{
+    if(e.target.tagName!=="INPUT"){ const c=li.querySelector("input"); c.checked=!c.checked; }
+    const c=li.querySelector("input"); li.classList.toggle("done",c.checked);
+    saved[i]=c.checked; try{ localStorage.setItem("cpg_todos_v3",JSON.stringify(saved)); }catch(e){}
+  });
+  ul.appendChild(li);
+});
+// lists
+const fill=(id,arr)=>{const el=document.getElementById(id);arr.forEach(t=>{const li=document.createElement("li");li.innerHTML='<span class="q">&bull;</span><span>'+t+'</span>';el.appendChild(li);});};
+fill("qs",QUESTIONS); fill("dec",DECISIONS);
+// done list (checkmarks)
+const dn=document.getElementById("done");
+DONE.forEach(t=>{const li=document.createElement("li");li.innerHTML='<span class="q" style="color:var(--green)">&#10003;</span><span>'+t+'</span>';dn.appendChild(li);});
+// files
+const fb=document.getElementById("files");
+FILES.forEach(([f,d])=>{const tr=document.createElement("tr");tr.innerHTML='<td style="width:320px"><code>'+f+'</code></td><td>'+d+'</td>';fb.appendChild(tr);});
+</script>
+</body>
+</html>

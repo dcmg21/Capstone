@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draft 0 - Evidence Sheet</title>
+<style>
+  :root{ --red:#CC0035; --navy:#28356A; --ink:#1c2331; --muted:#667085;
+         --line:#e4e7ec; --bg:#f7f8fa; --card:#fff;
+         --ok:#166534; --okbg:#ecfdf5; --warn:#92400e; --warnbg:#fffbeb; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1150px;margin:0 auto;padding:26px 22px 60px;}
+  header.top{border-bottom:3px solid var(--red);padding-bottom:12px;margin-bottom:14px;}
+  header.top h1{margin:0;font-size:24px;color:var(--navy);}
+  header.top .sub{color:var(--muted);font-size:13.5px;margin-top:4px;}
+  h2{font-size:15px;color:var(--navy);margin:28px 0 8px;padding-top:14px;border-top:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+        border-radius:9px;overflow:hidden;font-size:13px;margin-bottom:6px;}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f0f2f6;color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:#fcfcfd;}
+  td.n{width:4%;font-weight:700;color:var(--navy);white-space:nowrap;}
+  td.us{width:26%;}
+  td.them{width:49%;}
+  td.where{width:21%;font-size:12.5px;color:var(--muted);}
+  .fn{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+       font-size:11.5px;color:var(--navy);background:#f0f2f6;padding:3px 6px;border-radius:4px;
+       margin-bottom:5px;word-break:break-word;font-weight:600;}
+  q{quotes:'\201C' '\201D';font-style:italic;}
+  mark{background:#fff3bf;padding:0 2px;border-radius:3px;font-style:normal;font-weight:700;}
+  .how{background:var(--okbg);border-left:4px solid var(--ok);padding:12px 16px;margin:14px 0;
+       border-radius:0 8px 8px 0;font-size:13.5px;}
+  .warn{background:var(--warnbg);border-left:4px solid #f59e0b;padding:12px 16px;margin:14px 0;
+        border-radius:0 8px 8px 0;font-size:13.5px;}
+  code{background:#f2f4f7;padding:1px 5px;border-radius:4px;font-size:12px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  ol{margin:8px 0;padding-left:20px;} li{margin-bottom:5px;}
+  .foot{margin-top:30px;color:var(--muted);font-size:12px;text-align:center;}
+  @media print{ body{background:#fff} .wrap{max-width:none;padding:0} table{font-size:9.5pt} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Draft 0 &mdash; Evidence Sheet</h1>
+  <div class="sub">What we wrote, next to the paper&rsquo;s own words. No page-flipping required.</div>
+</header>
+
+<div class="how">
+  <b>How to verify a row in about ten seconds.</b>
+  <ol style="margin-bottom:0">
+    <li>Open the PDF named at the top of the <b>Where</b> column. All of them live in <code>Paper\Sources\</code>.</li>
+    <li><code>Ctrl+F</code> the <mark>highlighted</mark> phrase in the middle column.</li>
+    <li>If it lands, the claim is sound. If it does not, the claim is wrong and we fix it.</li>
+  </ol>
+  Every phrase below is copied verbatim out of the PDF text layer, so it will always match.
+  Checking all 21 rows takes about five minutes.
+  <br><br>
+  <b>Watch out:</b> three filenames are nearly identical. <code>Demand Forecasting <u>In Wholesale
+  Alcohol</u>&hellip;</code> is Arora [9]. <code>Demand Forecasting <u>for Alcoholic Beverage</u>&hellip;</code>
+  is Jiang [10]. <code>Automated Machine Learning&hellip;</code> is Ford [11].
+</div>
+
+<div class="warn">
+  <b>Two roundings you should look at and approve.</b> Neither is an error, but the paper&rsquo;s exact figure
+  is narrower than ours in both cases.
+  <ul style="margin-bottom:0">
+    <li><b>Boone [5]:</b> we wrote &ldquo;between 2 and 8 percent.&rdquo; He says <b>2.2% to 7.7%</b>.</li>
+    <li><b>Cui [6]:</b> we wrote &ldquo;13 to 23 percent.&rdquo; They say <b>12.85% to 23.23%</b>.</li>
+  </ul>
+  Say the word and I will tighten both to the exact figures.
+</div>
+
+<h2>Abstract</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[1]</td><td class="us">Framework includes four criteria; only demand momentum is built</td>
+      <td class="them"><q>The framework <mark>includes four criteria</mark>. Demand momentum measures recent sales growth trajectory&hellip; <mark>This study implements the demand momentum criterion</mark>.</q></td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S &sect;4.2.1, p.10</td></tr>
+    <tr><td class="n">[1]</td><td class="us">112 brands, in a single spirits subcategory</td>
+      <td class="them"><q>The final truth set contains <mark>112 brands: 29 discontinued</mark>, 30 decline, 28 stable, and 25 growing.</q> Subcategory is unnamed in her paper, by design (NDA).</td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S &sect;4.1.1, p.8</td></tr>
+    <tr><td class="n">[1]</td><td class="us">Cannot score many short-history extensions</td>
+      <td class="them"><q>A total of <mark>1,978 extensions lacked sufficient observations</mark> to compute growth features and were excluded from scored results.</q></td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S p.23</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 1 &mdash; the hook</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[2]</td><td class="us">Half gone within a year, 80% within three</td>
+      <td class="them"><q><mark>Half are removed from the market in the year after launch</mark> (M= 50%, SD= 6)&hellip; continues to increase in each quarter to 64% after two years and reaches the famed <mark>80% failure rate three years on</mark>.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Results / Failure rate, p.14 (pr.11); Table 1</td></tr>
+    <tr><td class="n">[2]</td><td class="us">Nearly 37,000 new products</td>
+      <td class="them"><q>The sample investigated in this study amounted to <mark>36,994 NLEs</mark> introduced in five consumer categories.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Methodology, p.10 (pr.7)</td></tr>
+    <tr><td class="n">[2]</td><td class="us">72% never reached their category&rsquo;s average share</td>
+      <td class="them"><q><mark>72% of NLEs across the categories had a market share below the category average</mark> in the quarter after launch.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Market share, p.16 (pr.13); Table 2</td></tr>
+    <tr><td class="n">[2]</td><td class="us">Typical new product captured roughly 0.3% share</td>
+      <td class="them"><q>The &lsquo;average&rsquo; NLE has a <mark>market share around 0.3%</mark> (SD= 0.2%) in the quarter after launch, which continues in the first, second and third year.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Market share, p.15 (pr.12); Table 2</td></tr>
+    <tr><td class="n">[2]</td><td class="us">A poor year one almost never recovers</td>
+      <td class="them"><q>if a consumer goods NLE is <mark>performing poorly in the first year, it is unlikely to markedly improve</mark> its performance in the second and third year.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Implications, p.22 (pr.19)</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 2 &mdash; why it matters</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[1]</td><td class="us">More than 22,000 brand extensions in one megacategory</td>
+      <td class="them"><q>approximately 7.3 million observations representing 46,008 unique UPCs and <mark>22,495 unique brand extensions</mark> across 8,739 brand families.</q></td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S &sect;3.1, p.5</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 3 &mdash; retail data</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[3]</td><td class="us">Ignoring which chains carry a brand costs 35% prediction accuracy where no data exist</td>
+      <td class="them"><q>make predictions using only the distance-based component of the model. Now the <mark>drop in prediction accuracy is 35%</mark>.</q> Table 3 confirms it in the &ldquo;Percentage difference&rdquo; row (<mark>&ndash;35%</mark>).</td>
+      <td class="where"><span class="fn">Using Multimarket Data to Predict Brand.pdf</span>Bronnenberg, out-of-sample validation, p.14</td></tr>
+    <tr><td class="n">[4]</td><td class="us">Sales-distribution curve is nonlinear and often concave, so distribution has diminishing returns</td>
+      <td class="them"><q>the shape of the <mark>velocity curve (convex, concave, S-shaped, linear)</mark> is an important generalisation for marketing managers.</q> Michis estimates it and finds concavity.</td>
+      <td class="where"><span class="fn">Retail distribution evaluation in brand-level sales response models.pdf</span>Michis, estimation results, p.8&ndash;9 (pr.373&ndash;374), Fig.1</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 4 &mdash; signals from outside the store</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[5]</td><td class="us">Search interest cuts forecast error by 2 to 8 percent</td>
+      <td class="them"><q>absolute percentage errors (MAPE) anywhere from <mark>2.2% to 7.7%</mark> for the SKUs we studied.</q> <b>Our range is rounded outward.</b></td>
+      <td class="where"><span class="fn">2018 - Boone - Can Google Trends Improve Your Sales Forecast.pdf</span>Boone, p.1 (pr.1770); Table 2 p.4</td></tr>
+    <tr><td class="n">[6]</td><td class="us">Social media improves daily forecasts 13 to 23 percent, nonlinear models only</td>
+      <td class="them"><q>relative improvements ranging from <mark>12.85% to 23.23%</mark> over different forecast horizons.</q> <b>Exact low end is 12.85, not 13.</b></td>
+      <td class="where"><span class="fn">2018 - Cui - The Operational Value of Social Media Information.pdf</span>Cui, abstract p.1; Fig.5 p.12</td></tr>
+    <tr><td class="n">[7]</td><td class="us">Google Trends substitutes for sales history; best signal 7 to 10 months pre-launch</td>
+      <td class="them"><q>The lags that contain the strongest correlations are contained mostly (54% of the cases) in the range <mark>[42,30], i.e., 42-30 weeks before the planned release date</mark>.</q> 42&ndash;30 weeks = about 10 to 7 months.</td>
+      <td class="where"><span class="fn">Multimodal Forecasting of New Fashion Product Sales with Image-based Google Trends.pdf</span>Skenderi, correlation analysis, p.9; Table 1 p.11</td></tr>
+    <tr><td class="n">[8]</td><td class="us">Multimodal gains about 7 percent; liquor among worst-forecast categories</td>
+      <td class="them"><q>statistically significant improvements in the SMAPE error metric with an <mark>average improvement of 7.37%</mark>.</q> Table 2: liquor/wine/beer 21&ndash;22% SMAPE vs 7&ndash;9% for bread and dairy.</td>
+      <td class="where"><span class="fn">Multimodal Neural Network For Demand Forecasting.pdf</span>Kumar, abstract p.1; Table 2 p.14</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 5 &mdash; prior SMU work</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[9]</td><td class="us">No &ldquo;one size fits all&rdquo; model</td>
+      <td class="them"><q>This led to the conclusion that there is <mark>no &ldquo;one size fits all&rdquo; model</mark> for all products sold by the distributor.</q></td>
+      <td class="where"><span class="fn">Demand Forecasting In Wholesale Alcohol Distribution.pdf</span>Arora, conclusion, p.19 (pr.18)</td></tr>
+    <tr><td class="n">[10]</td><td class="us">No single model best across products</td>
+      <td class="them"><q>The biggest takeaway&hellip; is that there is <mark>no one model that performs best overall</mark>. Each customer for each product has their own purchasing patterns.</q></td>
+      <td class="where"><span class="fn">Demand Forecasting for Alcoholic Beverage Distribution.pdf</span>Jiang, conclusions, p.21 (pr.20)</td></tr>
+    <tr><td class="n">[11]</td><td class="us">Some series were white noise, no model beat a simple mean</td>
+      <td class="them"><q>if a time series is deemed to be <mark>white noise, there is no need to model the series and a simple equal means forecast is sufficient</mark>.</q></td>
+      <td class="where"><span class="fn">Automated Machine Learning Framework for Demand Forecasting.pdf</span>Ford, p.24 (pr.23); Table 2 p.19</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 6 &mdash; the gap</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[1]</td><td class="us">Up to 85% balanced accuracy, stable to 18 months</td>
+      <td class="them"><q>median year-over-year case sales growth distinguishes low-performing from viable brands with <mark>up to 85% balanced accuracy</mark>, and that <mark>performance is stable up to 18 months</mark> in advance.</q></td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S abstract p.1; Table 6 p.19</td></tr>
+    <tr><td class="n">[1]</td><td class="us">93% adjacent accuracy</td>
+      <td class="them"><q>The ordinal model provides finer-grained tier assignments with <mark>93% adjacent accuracy</mark>.</q></td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S abstract p.1; &sect;5.3.2 p.19</td></tr>
+    <tr><td class="n">[1]</td><td class="us">The three unbuilt criteria are category context, distribution coverage, promotional efficiency</td>
+      <td class="them"><q>Demand momentum measures recent sales growth trajectory. <mark>Distribution coverage</mark> captures how widely a brand is carried&hellip;</q> Not &ldquo;headroom.&rdquo;</td>
+      <td class="where"><span class="fn">Kristin_Henderson_Journal_Paper.pdf</span>H&amp;S &sect;4.2.1 p.10; &sect;4.6 p.15</td></tr>
+  </tbody>
+</table>
+
+<h2>Paragraph 7 &mdash; problem statement</h2>
+<table>
+  <thead><tr><th>&nbsp;</th><th>What we wrote</th><th>What the paper says</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td class="n">[2]</td><td class="us">Victory closes by asking whether you can pick a winner at launch</td>
+      <td class="them"><q>do &lsquo;successful&rsquo; NLEs that remain in the market for longer also have greater sales performance as early as their launch? This would identify whether it is <mark>possible to &lsquo;pick&rsquo; a winner at launch</mark>.</q></td>
+      <td class="where"><span class="fn">How Do New Products Perform An Investigation.pdf</span>Victory, Limitations &amp; Future Research, p.23 (pr.20)</td></tr>
+  </tbody>
+</table>
+
+<div class="foot">21 claims &middot; 11 sources &middot; every quote pulled from the PDF text layer 13 Sep 2026</div>
+</div>
+</body>
+</html>

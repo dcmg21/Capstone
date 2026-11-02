@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draft 0 - Source Trace</title>
+<style>
+  :root{ --red:#CC0035; --navy:#28356A; --ink:#1c2331; --muted:#667085;
+         --line:#e4e7ec; --bg:#f7f8fa; --card:#fff;
+         --ok:#166534; --okbg:#ecfdf5; --warn:#92400e; --warnbg:#fffbeb;
+         --bad:#991b1b; --badbg:#fef2f2; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1150px;margin:0 auto;padding:26px 22px 60px;}
+  header.top{border-bottom:3px solid var(--red);padding-bottom:12px;margin-bottom:16px;}
+  header.top h1{margin:0;font-size:24px;color:var(--navy);}
+  header.top .sub{color:var(--muted);font-size:13.5px;margin-top:4px;}
+  h2{font-size:15px;color:var(--navy);margin:30px 0 8px;padding-top:14px;border-top:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+        border-radius:9px;overflow:hidden;font-size:13px;margin-bottom:6px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f0f2f6;color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:#fcfcfd;}
+  td.p{width:4%;font-weight:700;color:var(--navy);white-space:nowrap;}
+  td.claim{width:34%;}
+  td.src{width:13%;white-space:nowrap;}
+  td.st{width:9%;white-space:nowrap;}
+  .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;}
+  .b-ok{background:var(--okbg);color:var(--ok);}
+  .b-corr{background:var(--warnbg);color:var(--warn);}
+  .b-bad{background:var(--badbg);color:var(--bad);}
+  .b-na{background:#f2f4f7;color:var(--muted);}
+  code{background:#f2f4f7;padding:1px 5px;border-radius:4px;font-size:12px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  .flag{background:var(--badbg);border-left:4px solid var(--bad);padding:10px 14px;margin:14px 0;
+        border-radius:0 8px 8px 0;font-size:13.5px;}
+  .flag b{color:inherit;}
+  .mini{font-size:12.5px;color:var(--muted);margin:4px 0 14px;}
+  .foot{margin-top:30px;color:var(--muted);font-size:12px;text-align:center;}
+  @media print{ body{background:#fff} .wrap{max-width:none;padding:0} table{font-size:9.5pt} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Draft 0 &mdash; Source Trace</h1>
+  <div class="sub">Every factual claim in <code>Nunnally_Streeter_Introduction_Draft0.docx</code> and where it came from.
+  Citations are <code>[1]</code>&ndash;<code>[11]</code>, numbered in order of first appearance. Current as of 13 Sep 2026.</div>
+</header>
+
+<div class="flag" style="background:var(--okbg);border-left-color:var(--ok)">
+  <b style="font-size:15px">Nothing is open. Every claim below has been checked against the PDF.</b><br>
+  The document is ready to submit. The table is a reference for when Kristin asks &ldquo;where did this
+  number come from,&rdquo; not a to-do list.
+</div>
+
+<h2>Claims</h2>
+<table>
+  <thead><tr><th>&para;</th><th>Claim</th><th>Source</th><th>Where</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td class="p">Abs</td><td class="claim">Framework uses demand momentum; only 1 of 4 criteria built</td><td class="src">H&amp;S [1]</td><td>&sect;4.2.1 p.10; &sect;4.6 p.15</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">Abs</td><td class="claim">Cannot score many short-history extensions</td><td class="src">H&amp;S [1]</td><td>p.23: &ldquo;1,978 extensions lacked sufficient observations&rdquo;; p.20: 112&rarr;106 at 18mo</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">Abs</td><td class="claim">112 brands</td><td class="src">H&amp;S [1]</td><td>&sect;4.1.1 p.8</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">Abs</td><td class="claim">&hellip;in a single spirits subcategory</td><td class="src">H&amp;S [1]</td><td>&sect;4.1.1 p.8 &ldquo;a single product subcategory&rdquo;</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">1</td><td class="claim">50% of new line extensions gone in 1 yr, 80% in 3</td><td class="src">Victory [2]</td><td>p.14 (pr.11); Table 1 p.24</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">1</td><td class="claim">Nearly 37,000 new products</td><td class="src">Victory [2]</td><td>p.10 (pr.7): &ldquo;36,994 NLEs&rdquo;</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">1</td><td class="claim">72% never reached category average share</td><td class="src">Victory [2]</td><td>p.16 (pr.13); Table 2 p.24</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">1</td><td class="claim">Typical new product captured ~0.3% share</td><td class="src">Victory [2]</td><td>p.15 (pr.12); Table 2</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">1</td><td class="claim">Poor year one almost never recovers</td><td class="src">Victory [2]</td><td>p.22 (pr.19)</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">2</td><td class="claim">22,000+ brand extensions in one megacategory</td><td class="src">H&amp;S [1]</td><td>&sect;3.1 p.5: &ldquo;22,495 unique brand extensions&rdquo;</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">2</td><td class="claim">Most new products underperform category average</td><td class="src">Victory [2]</td><td>Same as &para;1</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">3</td><td class="claim">Ignoring which chains carry a brand costs 35% prediction accuracy where no data exist</td><td class="src">Bronnenberg [3]</td><td>p.14, Table 3</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">3</td><td class="claim">Sales-distribution curve is concave, so distribution has diminishing returns</td><td class="src">Michis [4]</td><td>p.8&ndash;9 (pr.373-374), Fig.1</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">4</td><td class="claim">Search interest cuts forecast error 2 to 8%</td><td class="src">Boone [5]</td><td>p.1 (pr.1770); Table 2 p.4</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">4</td><td class="claim">Social media improves daily forecasts 13-23%, nonlinear models only</td><td class="src">Cui [6]</td><td>p.1, Fig.5 p.12, p.15. <i>Caveat: 1-7 day horizon, online apparel</i></td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">4</td><td class="claim">Google Trends substitutes for sales history; best signal 7-10 mo pre-launch</td><td class="src">Skenderi [7]</td><td>p.9 (lags 42-30 wks); Table 1 p.11. <i>Caveat: WAPE stays ~55%</i></td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">4</td><td class="claim">Multimodal gains ~7%; liquor among worst-forecast categories</td><td class="src">Kumar [8]</td><td>p.1 (7.37% SMAPE); Table 2 p.14</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">5</td><td class="claim">No &ldquo;one size fits all&rdquo; model</td><td class="src">Arora [9]</td><td>p.2, p.19 (pr.18), verbatim</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">5</td><td class="claim">No single model best across products</td><td class="src">Jiang [10]</td><td>p.21 (pr.20)</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">5</td><td class="claim">Some series white noise, no model beat a mean</td><td class="src">Ford [11]</td><td>p.24 (pr.23); Table 2 p.19</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">6</td><td class="claim">7.3M observations, 46,008 UPCs, 22,495 extensions</td><td class="src">H&amp;S [1]</td><td>&sect;3.1 p.5</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Truth set of 112 brands, four tiers</td><td class="src">H&amp;S [1]</td><td>&sect;4.1.1 p.8: 29 disc / 30 decline / 28 stable / 25 growing</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Up to 85% balanced accuracy</td><td class="src">H&amp;S [1]</td><td>Table 6 p.19. <b>MCDA LV = 85%, binary logistic = 84%</b></td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">93% adjacent accuracy</td><td class="src">H&amp;S [1]</td><td>&sect;5.3.2 p.19: 104 of 112 within one step</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Stable up to 18 months</td><td class="src">H&amp;S [1]</td><td>Table 7 p.20</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Four criteria, only demand momentum implemented</td><td class="src">H&amp;S [1]</td><td>&sect;4.2.1 p.10</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">The three unbuilt: category context, <b>distribution coverage</b>, promotional efficiency</td><td class="src">H&amp;S [1]</td><td>&sect;4.6 p.15. <b>&ldquo;Headroom&rdquo; was our error</b></td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Category context is the priority</td><td class="src">H&amp;S [1]</td><td>&sect;6.4 p.27</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Social trend data named as candidate input; ARIMA named as path forward</td><td class="src">H&amp;S [1]</td><td>&sect;6.4 p.27; Conclusion p.28</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">6</td><td class="claim">Regression forecast inflated estimates on near-zero brands</td><td class="src">H&amp;S [1]</td><td>&sect;4.3.3 p.13</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+
+    <tr><td class="p">7</td><td class="claim">Victory asks whether you can pick a winner at launch</td><td class="src">Victory [2]</td><td>p.23 (pr.20), verbatim</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+    <tr><td class="p">7</td><td class="claim">H&amp;S implement one of four criteria</td><td class="src">H&amp;S [1]</td><td>&sect;4.2.1 p.10</td><td class="st"><span class="badge b-ok">CHECKED</span></td></tr>
+  </tbody>
+</table>
+<p class="mini">Page numbers are position in the PDF; &ldquo;pr.&rdquo; is the number printed on the page where it differs.
+<b>CHECKED</b> = the PDF was opened and that page read. Nothing here is pending.</p>
+
+<h2>History &mdash; things that were wrong and are now fixed</h2>
+<p class="mini">Closed. Listed only so you are not blindsided if someone asks why our wording differs
+from Kristin&rsquo;s lit review. <b>No action on any of these.</b></p>
+<table>
+  <thead><tr><th>&nbsp;</th><th>Was</th><th>Now</th></tr></thead>
+  <tbody>
+    <tr><td class="p">&para;3</td><td class="claim">Said Michis shows weighted distribution beats numeric. He never tests that, he assumes it (p.7). Error came from Kristin&rsquo;s lit review.</td><td>We cite what he actually shows: the concave sales-distribution curve.</td></tr>
+    <tr><td class="p">&para;4</td><td class="claim">Said Kumar forecasts products with no sales history. He forecasts 20 established supermarket categories. Also from Kristin&rsquo;s lit review.</td><td>The no-history claim is now credited to Skenderi [7], who actually does it.</td></tr>
+    <tr><td class="p">&para;3</td><td class="claim">Bronnenberg sentence paired 25% and 35%. Those are a variance share and a prediction-error increase, unrelated numbers.</td><td>Sentence carries the 35% only, correctly described.</td></tr>
+    <tr><td class="p">Abs</td><td class="claim">&ldquo;112 vodka brands.&rdquo; Kristin anonymized the subcategory under NDA.</td><td>&ldquo;112 brands in a single spirits subcategory.&rdquo;</td></tr>
+  </tbody>
+</table>
+
+<h2>File key</h2>
+<table>
+  <thead><tr><th>[n]</th><th>Cited as</th><th>Filename in <code>Paper\Sources\</code></th><th>Used in</th></tr></thead>
+  <tbody>
+    <tr><td class="p">[1]</td><td class="src">Henderson &amp; Sadler</td><td><code>Kristin_Henderson_Journal_Paper.pdf</code></td><td class="st">Abs, &para;2, 6, 7</td></tr>
+    <tr><td class="p">[2]</td><td class="src">Victory et al.</td><td><code>How Do New Products Perform An Investigation.pdf</code></td><td class="st">&para;1, 2, 7</td></tr>
+    <tr><td class="p">[3]</td><td class="src">Bronnenberg</td><td><code>Using Multimarket Data to Predict Brand.pdf</code></td><td class="st">&para;3</td></tr>
+    <tr><td class="p">[4]</td><td class="src">Michis</td><td><code>Retail distribution evaluation in brand-level sales response models.pdf</code></td><td class="st">&para;3</td></tr>
+    <tr><td class="p">[5]</td><td class="src">Boone et al.</td><td><code>2018 - Boone - Can Google Trends Improve Your Sales Forecast.pdf</code></td><td class="st">&para;4</td></tr>
+    <tr><td class="p">[6]</td><td class="src">Cui et al.</td><td><code>2018 - Cui - The Operational Value of Social Media Information.pdf</code></td><td class="st">&para;4</td></tr>
+    <tr><td class="p">[7]</td><td class="src">Skenderi et al.</td><td><code>Multimodal Forecasting of New Fashion Product Sales with Image-based Google Trends.pdf</code></td><td class="st">&para;4</td></tr>
+    <tr><td class="p">[8]</td><td class="src">Kumar et al.</td><td><code>Multimodal Neural Network For Demand Forecasting.pdf</code></td><td class="st">&para;4</td></tr>
+    <tr><td class="p">[9]</td><td class="src">Arora et al.</td><td><code>Demand Forecasting In Wholesale Alcohol Distribution.pdf</code></td><td class="st">&para;5</td></tr>
+    <tr><td class="p">[10]</td><td class="src">Jiang et al.</td><td><code>Demand Forecasting for Alcoholic Beverage Distribution.pdf</code></td><td class="st">&para;5</td></tr>
+    <tr><td class="p">[11]</td><td class="src">Ford et al.</td><td><code>Automated Machine Learning Framework for Demand Forecasting.pdf</code></td><td class="st">&para;5</td></tr>
+  </tbody>
+</table>
+<p class="mini"><b>Filename trap:</b> [9] Arora is &ldquo;In Wholesale Alcohol Distribution,&rdquo; [10] Jiang is
+&ldquo;for Alcoholic Beverage Distribution,&rdquo; [11] Ford is &ldquo;Automated Machine Learning Framework.&rdquo;
+All three are in &para;5.</p>
+
+<h2>Citation metadata still open</h2>
+<table>
+  <tbody>
+    <tr><td class="src">Victory [2]</td><td>No year on the SSRN title page. The 2021 <i>Marketing Letters</i> companion paper avoids this.</td></tr>
+    <tr><td class="src">Skenderi [7]</td><td>Ours is the arXiv preprint (2109.09824v6, 14 Jan 2024), not the <i>Journal of Forecasting</i> version. No volume or pages.</td></tr>
+    <tr><td class="src">H&amp;S [1]</td><td>Journal, volume and year unknown. Ask Kristin. Most-cited source in the paper.</td></tr>
+    <tr><td class="src">Boone [5] / Cui [6]</td><td>Settled: cite both as <b>2018</b>. Copyright and acceptance are 2017, publication is 2018 (Vol 27 No 10). Files renamed to match.</td></tr>
+  </tbody>
+</table>
+
+<h2>Change log</h2>
+<table>
+  <thead><tr><th>Date</th><th>Change</th><th>Re-checked?</th></tr></thead>
+  <tbody>
+    <tr><td class="src">13 Sep</td><td><b>Citations renumbered by order of first appearance.</b> Was alphabetical. Reference list reordered to match. Verified: [1]-[11] appear in sequence, every name matches its number.</td><td class="st">No</td></tr>
+    <tr><td class="src">13 Sep</td><td><b>Abstract: &ldquo;112 vodka brands&rdquo; changed to &ldquo;112 brands in a single spirits subcategory.&rdquo;</b> NDA. Only wording change made to the document.</td><td class="st">n/a</td></tr>
+    <tr><td class="src">13 Sep</td><td>Removed the spot-check list. Those five were already correct in the document; the list was asking Drew to re-verify Claude&rsquo;s PDF reading, which is not a defect list.</td><td class="st">No</td></tr>
+    <tr><td class="src">13 Sep</td><td>Trimmed this file. Content unchanged, prose cut.</td><td class="st">No</td></tr>
+    <tr><td class="src">13 Sep</td><td>Draft0.docx was overwritten with a pre-bracket version at 10:38. Brackets and the Bronnenberg rewrite re-applied and re-verified.</td><td class="st">No</td></tr>
+    <tr><td class="src">13 Sep</td><td>Traced Drew&rsquo;s abstract. Three claims verified, &ldquo;vodka&rdquo; flagged.</td><td class="st"><b>Yes</b>, abstract only</td></tr>
+    <tr><td class="src">13 Sep</td><td>Citations converted to <code>[9]</code>-<code>[2]</code>, alphabetical. Abstract&rsquo;s <code>[9]</code> corrected to <code>[1]</code>.</td><td class="st">No</td></tr>
+    <tr><td class="src">13 Sep</td><td>&para;3 Bronnenberg sentence rewritten.</td><td class="st"><b>Yes</b>, that row</td></tr>
+    <tr><td class="src">13 Sep</td><td>Renumbered to 7 paragraphs to match the document. Added change log and spot-check list.</td><td class="st">No, additive</td></tr>
+    <tr><td class="src">12 Sep</td><td>Markdown to HTML. Fixed stale refs to the draft filename and Boone/Cui years.</td><td class="st">No</td></tr>
+    <tr><td class="src">11 Sep</td><td><b>All seven remaining PDFs read.</b> &para;3 rewritten. Two errors found in Kristin&rsquo;s lit review.</td><td class="st"><b>Yes, the verification pass</b></td></tr>
+    <tr><td class="src">11 Sep</td><td>First version. &para;3 flagged secondhand.</td><td class="st">Partial</td></tr>
+  </tbody>
+</table>
+
+<div class="foot">Abstract + 7 paragraphs &middot; 11 sources &middot; 13 Sep 2026</div>
+</div>
+</body>
+</html>

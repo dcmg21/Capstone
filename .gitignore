@@ -1,0 +1,27 @@
+# Data under NDA, or just too big for GitHub
+Data/
+Archive/
+Code/app/data/
+Code/brand_scoring/results/
+Code/brand_scoring_extension/outputs/
+Code/devin_playground/outputs/
+*.zip
+*.parquet
+*.duckdb
+*.m4a
+*.mp4
+
+# Meeting recordings and transcripts
+Team/Meetings/
+
+# Python and editor junk
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.Rhistory
+.RData
+
+# Office lock files and OS files
+~$*
+.DS_Store
+Thumbs.db

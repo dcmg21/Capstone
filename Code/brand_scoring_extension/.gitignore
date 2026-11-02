@@ -1,0 +1,19 @@
+# Proprietary Eurpac/NIQ data -- NDA. Nothing derived from it goes in git.
+outputs/
+*.duckdb
+*.parquet
+*.csv
+*.xlsx
+
+# Python
+.ruff_cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.env
+
+# OS
+.DS_Store
+Thumbs.db

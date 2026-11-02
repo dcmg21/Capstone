@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How we label brands: a guide for Eurpac</title>
+<style>
+  :root{--red:#CC0035;--navy:#28356A;--ink:#1c2331;--muted:#6b7280;--bg:#f4f5f8;--card:#fff;--line:#e5e7eb;
+        --amber:#b45309;--amberbg:#fff7ed;--green:#166534;--greenbg:#ecfdf5;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 18px 60px}
+  header{border-bottom:3px solid var(--red);padding-bottom:14px;margin-bottom:22px}
+  header h1{margin:0;font-size:26px;color:var(--navy)}
+  header .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .story{background:var(--navy);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:26px;font-size:16px}
+  .story b{color:#fecdd3}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:22px;overflow:hidden}
+  .step .head{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:#f8fafc}
+  .step .num{background:var(--red);color:#fff;font-weight:700;border-radius:999px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .step h2{margin:0;font-size:18px;color:var(--navy)}
+  .step .body{padding:6px 20px 16px}
+  .row{display:grid;grid-template-columns:150px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .row:last-child{border-bottom:none}
+  .row .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:3px}
+  .row ul{margin:0;padding-left:18px}
+  .row li{margin-bottom:5px}
+  .issue{background:var(--amberbg);border-left:4px solid var(--amber);padding:10px 12px;border-radius:6px;margin-bottom:8px}
+  .issue b{color:var(--amber)}
+  .ok{color:var(--green);font-weight:600}
+  .num-big{font-size:22px;font-weight:700;color:var(--navy)}
+  table{border-collapse:collapse;font-size:14px;margin:6px 0}
+  th,td{padding:5px 12px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{background:#f8fafc;color:var(--navy);font-size:12px;text-transform:uppercase}
+  td.hit{background:var(--greenbg);font-weight:600}
+  .next{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .next .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px}
+  .next .card b{display:block;color:var(--navy);margin-bottom:4px}
+  .foot{margin-top:26px;color:var(--muted);font-size:12px;text-align:center}
+  @media(max-width:700px){.row{grid-template-columns:1fr}.next{grid-template-columns:1fr}}
+  @media print{body{background:#fff}.step{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>How we label brands, and how we know it works</h1>
+  <div class="sub">Eurpac brand-opportunity project, phase 2. Drew Nunnally and Devin Streeter, SMU MSDS. Advisors: Dr. Bivin Sadler, Kristin Henderson. Updated November 2, 2026.</div>
+</header>
+
+<div class="story">
+  <b>The story in 30 seconds.</b>
+  Kristin looked at 112 vodka brands by hand and called each one discontinued, declining, stable or growing.
+  We wrote rules that read a brand's sales chart the way she did, and on those vodka brands they land on the same answer 9 times out of 10.
+  Those rules now label every one of the 22,000 spirits brands, at the end of every year, with no hand work.
+  A model then predicts next year's label from this year's: on a year it never saw, 98 of its 100 most confident picks were still viable. Predicting which brands will be growing is harder: our best model gets 65 of 100, better than a coin flip, and we say so.
+</div>
+
+<div class="step">
+  <div class="head"><h2 style="margin:0;font-size:16px;color:var(--navy)">Words we use</h2></div>
+  <div class="body" style="font-size:14px">
+    <div class="row"><div class="k">Brand extension</div><div>The unit we score: a line under a brand family, like one flavor or one expression. 22,495 of them.</div></div>
+    <div class="row"><div class="k">The four tiers</div><div><b>Discontinued</b>: has effectively stopped selling. <b>Declining</b>: sales or store coverage trending down. <b>Stable</b>: present, no clear trend. <b>Growing</b>: sales and/or coverage rising. These are Kristin's definitions.</div></div>
+    <div class="row"><div class="k">Viable</div><div>Kristin's word for "alive and healthy": stable or growing. It is not a separate calculation, just the four-word label collapsed to yes/no. Growing or stable = <b>1</b> (viable). Declining or discontinued = <b>0</b> (low performance). Every brand carries both the word and the 1/0; step 3 checks the 1/0 against hers, step 4's "viable %" is the share of 1s, and step 5's first question is "will it be a 1 next year?"</div></div>
+    <div class="row"><div class="k">%ACV</div><div>Store coverage: the share of the market's stores that carry the brand, weighted by store size. We say "stores" or "coverage" for short.</div></div>
+    <div class="row"><div class="k">As of</div><div>A label computed using only data up to a given date, as if we were standing there. "As of end of 2023" ignores everything after.</div></div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step">
+  <div class="head"><div class="num">1</div><h2>Get the data right</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">What we do</div><div>
+      Start from NIQ's feed exactly as Eurpac received it: 387 files, 77 million rows, every alcohol type and every market, one row per product per week. Nobody has processed these; "parquet" is just the file format they came in. Our own preparation is four small steps:
+      <ul>
+        <li>Keep spirits only (drop beer, wine, and so on).</li>
+        <li>Keep one market, Total US Liquor Open State.</li>
+        <li>Turn NIQ's week label ("1 w/e 01/23/21") into a date and a week number, 1 to 260.</li>
+        <li>Drop three columns that have only one value left after the filters.</li>
+      </ul>
+      That is all. No rows are changed, nothing is estimated or filled in.
+    </div></div>
+    <div class="row"><div class="k">Why</div><div>
+      Every number downstream should trace back to NIQ, not to someone else's processing. Rebuilding it ourselves means we can explain every step. Kristin's prepared file is used once, at the end of step 1, only to confirm that our preparation gives the same data hers did. It is not an input to anything.
+    </div></div>
+    <div class="row"><div class="k">What we found</div><div>
+      <span class="num-big">7.3 million</span> weekly rows, <b>260 weeks</b> (Jan 2021 to Jan 2026), <b>46,008 products</b>, <b>22,495 brand extensions</b>, <b>11 categories</b>.
+      Our rebuild matches Kristin's prepared file exactly: same rows, same weeks, same products, same total cases, same cases in every single week.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>One market only.</b> Open-state liquor stores. Control states and grocery are not in this data. <span class="ok">Okay because</span> it is the market with the most complete coverage, and the same one Kristin used, so results are comparable.</div>
+      <div class="issue"><b>Brand extension, not brand family.</b> A flavor or line (Smirnoff Peppermint) is scored separately from its parent (Smirnoff). <span class="ok">Okay because</span> it matches Kristin's work and catches hot lines inside big brands. <b>Eurpac confirmed extensions (Oct 19).</b></div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step">
+  <div class="head"><div class="num">2</div><h2>Label every brand the way a person would</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">What we do</div><div>
+      Kristin labeled brands by looking at two charts: cases sold and distribution (%ACV, how many stores carry it), smoothed over 13 weeks, focusing on the last two years. Our rules measure what her eye was judging with three numbers per brand:
+      <ul>
+        <li><b>Sales vs best.</b> Cases sold in the last 13 weeks (about a quarter), as a share of the brand's best 13-week stretch ever. Sold 800 last quarter, best quarter ever was 1,000: sales vs best is 80%. Answers: "is it still selling like it did at its peak, or has it fallen off?"</li>
+        <li><b>Stores vs best.</b> Same idea for store coverage. Carried by 20% of stores now, most ever was 25%: stores vs best is 80%. Answers: "is it still on the shelves it used to be on, or is it getting dropped?"</li>
+        <li><b>Store trend.</b> Store coverage over the last 52 weeks compared with the 52 weeks before. Above 1 means more stores than a year ago. Answers: "is distribution climbing or shrinking?"</li>
+      </ul>
+      Every brand is measured against itself, never against a fixed number. A 500-case brand at 80% of its best and a 500,000-case brand at 80% of its best are treated the same. That is what lets one set of rules work in every category.
+      <br><br>Four plain rules turn those three numbers into her four labels:
+      <ul>
+        <li><b>Discontinued:</b> sales under 10% of best <i>and</i> stores under 10% of best.</li>
+        <li><b>Growing:</b> sales at 80% or more of best <i>and</i> store trend up at least 3%.</li>
+        <li><b>Declining:</b> store trend down 10% or more, <i>or</i> stores under 40% of best.</li>
+        <li><b>Stable:</b> everything else.</li>
+      </ul> Then, using Kristin's own definition, <b>viable</b> (stable or growing) = 1 and <b>low performance</b> (declining or discontinued) = 0.
+    </div></div>
+    <div class="row"><div class="k">Why</div><div>
+      Hand-labeling 112 brands took a sitting. Hand-labeling 22,000 is impossible. Rules do it in seconds, and every label comes with a one-line reason ("selling at 4% of its best; in 6% of the stores it once had; store count down 44% vs last year") that anyone can check against the chart.
+    </div></div>
+    <div class="row"><div class="k">What we found</div><div>
+      Every brand in every category (all 22,000 extensions, all 11 categories) with at least a year of history gets a label as of the end of 2022, 2023, 2024 and 2025. The labels for earlier years use only the data that existed at the time, so nothing leaks from the future.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>These are rules, not a learned model.</b> <span class="ok">Okay because</span> that is the point: a rule can be read, questioned and defended in one sentence. The machine learning comes in the next phase, where a model predicts next year's label.</div>
+      <div class="issue"><b>The rules have five tuning numbers</b> (for example "discontinued = under 10% of its best"). <span class="ok">Okay because</span> they were chosen to match Kristin's vodka labels, they are printed and explainable, and they have not changed since.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+  <div class="head"><div class="num">3</div><h2>Prove the rules match the human</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">What we do</div><div>
+      Run the rules on Kristin's 112 hand-labeled brands and compare, two ways. <b>Both checks below are vodka only</b>: those 112 brands are the only human labels that exist today, and they are also the brands the rule numbers were tuned on. The independent test, on a category the rules never saw, comes after.
+    </div></div>
+    <div class="row"><div class="k">Check 1<br>Four labels<br><span style="color:var(--amber)">vodka only</span></div><div>
+      Of the brands Kristin called each label, how many did we call the same?
+      <table>
+        <tr><th>Kristin said</th><th>Brands</th><th>We agreed</th><th>Rate</th></tr>
+        <tr><td>Discontinued</td><td>29</td><td class="hit">28</td><td>97%</td></tr>
+        <tr><td>Declining</td><td>30</td><td class="hit">26</td><td>87%</td></tr>
+        <tr><td>Stable</td><td>28</td><td class="hit">22</td><td>79%</td></tr>
+        <tr><td>Growing</td><td>25</td><td class="hit">25</td><td>100%</td></tr>
+        <tr><td><b>All</b></td><td><b>112</b></td><td class="hit"><b>101</b></td><td><b>90%</b></td></tr>
+      </table>
+    </div></div>
+    <div class="row"><div class="k">Check 2<br>Viable or not<br><span style="color:var(--amber)">vodka only</span></div><div>
+      Collapse to Kristin's 1/0. We agree on <span class="num-big">107 of 112</span> vodka brands (95.5%).
+      Of her 59 low-performance brands we flagged 58; of her 53 viable brands we flagged 49.
+      Balanced accuracy <b>95%</b>. Kristin's own published model scored about 84% on this same task.
+    </div></div>
+    <div class="row"><div class="k">What this proves</div><div>
+      On the one category where a human expert's labels exist, the rules reproduce them 9 times in 10. That is the human validation. Whether the rules behave sensibly in the other ten categories is step 4.
+    </div></div>
+    <div class="row"><div class="k">The 11 misses</div><div>
+      Five are "declining vs discontinued" on brands selling under 6% of their best (she said dying, we said dead; both are a 0). Four are "stable vs declining" where the store count slipped 13 to 16% in a year. Two are "stable vs growing" on brands at their best with store count up 12% (both are a 1). One real miss: a brand she called discontinued that still sells 40% of its best. Of the 11, six still agree on viable/not; only 5 of 112 flip the 1/0.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>Her labels are vodka only, single-line brands only, judged at one point in time</b> (January 2026). We have no human labels for any other category or for earlier years. <span class="ok">Why we think it transfers:</span> the rules compare each brand to its own best stretch and its own prior year, never to a fixed number of cases, so a 500-case brand and a 50,000-case brand are judged the same way, and "near zero at the end" or "falling for a year" means the same thing in any category. Step 4 checks this.</div>
+      <div class="issue"><b>Why not hand-label a second category?</b> We considered it. <span class="ok">We chose not to because</span> whoever labels now knows the rules, so the test would not be independent, and if it disagreed we would be tempted to re-tune. Kristin's vodka set stays the one human check, and we say so plainly.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step">
+  <div class="head"><div class="num">4</div><h2>Check the rules behave the same in every category</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">What we do</div><div>
+      Three automatic checks across all 11 categories, no hand labels needed:
+      <ul>
+        <li><b>Label mix.</b> What share of each category is discontinued, declining, stable, growing? If vodka is 20% declining and tequila is 60%, the rules are reacting to something other than brand health.</li>
+        <li><b>Seasonality test.</b> Label every brand as of July 2025 and again as of January 2026, and count how many labels change. Vodka sells the same year-round, so its labels should barely move. If a summer category flips in bulk, the rules are reading the season, not the brand.</li>
+        <li><b>Spot check.</b> Eight random brands per category with their chart, label and reason, for a person to eyeball.</li>
+      </ul>
+    </div></div>
+    <div class="row"><div class="k">Why</div><div>
+      The rules were tuned on vodka. This is how we show they are not vodka-specific, without pretending we have human labels we don't have.
+    </div></div>
+    <div class="row"><div class="k">What we found</div><div>
+      <b>The label mix is nearly identical across categories.</b> In every major category, 35 to 50% of brands have effectively stopped selling, 30 to 40% are declining, 14 to 20% are stable and only 4 to 8% are growing. Vodka (the validated category) looks like whiskey, rum, gin, brandy and tequila.
+      <table>
+        <tr><th>Category</th><th>Brands</th><th>Discontinued</th><th>Declining</th><th>Stable</th><th>Growing</th><th>Viable</th></tr>
+        <tr><td>Whiskey</td><td>6,462</td><td>44%</td><td>39%</td><td>14%</td><td>4%</td><td>17%</td></tr>
+        <tr><td>Cordials</td><td>3,124</td><td>39%</td><td>35%</td><td>20%</td><td>6%</td><td>26%</td></tr>
+        <tr><td>Prepared cocktails</td><td>2,925</td><td>51%</td><td>29%</td><td>16%</td><td>4%</td><td>20%</td></tr>
+        <tr><td>Vodka</td><td>2,790</td><td>45%</td><td>35%</td><td>15%</td><td>5%</td><td>20%</td></tr>
+        <tr><td>Tequila</td><td>2,427</td><td>35%</td><td>40%</td><td>16%</td><td>8%</td><td>25%</td></tr>
+        <tr><td>Rum</td><td>1,724</td><td>43%</td><td>35%</td><td>16%</td><td>5%</td><td>22%</td></tr>
+        <tr><td>Gin</td><td>976</td><td>36%</td><td>40%</td><td>19%</td><td>6%</td><td>24%</td></tr>
+        <tr><td>Brandy</td><td>744</td><td>44%</td><td>34%</td><td>18%</td><td>4%</td><td>22%</td></tr>
+        <tr><td>Cognac</td><td>321</td><td>51%</td><td>32%</td><td>14%</td><td>4%</td><td>18%</td></tr>
+      </table>
+      Two small categories differ for good reasons: non-alcoholic spirits (205 brands) is a young, growing category at 55% viable; grain alcohol has 22 brands, too few to read.
+      <br><br><b>The seasonality test passed.</b> Between July 2025 and January 2026, 23 to 30% of brands changed tier in every category: prepared cocktails 30%, vodka 27%, cordials 28%, whiskey 24%. No seasonal category stands out, so the rules are reading the brand, not the season. The viable/not call changed for only 10 to 14%, so the 1/0 is steadier than the four tiers.
+      <br><br><b>The big picture for Eurpac:</b> only about one brand in five is viable, and one in twenty is growing. That is why a screening tool matters.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>The known risk was seasonality.</b> The rules compare the last 13 weeks to the brand's best 13 weeks ever, so a summer category could look "far from its best" every January. <span class="ok">The test above shows it is not happening:</span> prepared cocktails and cordials flip no more than vodka. If it ever did, the fix is one setting (compare 52 weeks to the best 52).</div>
+      <div class="issue"><b>Labels move.</b> About a quarter of brands change tier within six months, mostly one step along the slide (stable to declining, declining to discontinued). <span class="ok">Okay because</span> that is real brand movement, and the viable/not call, which the model predicts, changes for only one brand in ten.</div>
+      <div class="issue"><b>These checks show consistency, not truth.</b> They can tell us the rules treat tequila like vodka; they cannot tell us a human would agree. <span class="ok">Okay because</span> the human agreement is established on vodka, the rules do not change between categories, and the rules never use a fixed number: every brand is judged against its own best stretch and its own prior year, so "selling 2% of its best, in 4% of the stores it once had" means the same thing in any category. One more piece of evidence comes from step 5: the labels can be predicted a year ahead in every category (8 to 10 of the top 10 in each). Labels that are predictable are labels that mean something.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><h2 style="margin:0;font-size:16px;color:var(--navy)">From four words to 1 and 0</h2></div>
+  <div class="body" style="font-size:14px">
+    <div class="row"><div class="k">The mapping</div><div>
+      Kristin defined it in her paper, and we use it unchanged:
+      <table>
+        <tr><th>Her four labels</th><th>Her 1/0</th></tr>
+        <tr><td>Growing, Stable</td><td><b>1</b> = viable</td></tr>
+        <tr><td>Declining, Discontinued</td><td><b>0</b> = low performance</td></tr>
+      </table>
+    </div></div>
+    <div class="row"><div class="k">Where each is used</div><div>
+      Steps 2 to 4 carry <b>both</b>: the four words are what a person can check against a chart, so that is what we validate. The 1/0 rides along on every row.
+      <br><br>From step 5 on, the models answer <b>yes/no questions only</b>: "viable next year?" (1 = stable or growing) and "growing next year?" (1 = growing only). The brand's current four-word label still goes <i>in</i> as one of the facts the model sees; it is just never the thing being predicted.
+    </div></div>
+    <div class="row"><div class="k">In one sentence</div><div>
+      We reproduce Kristin's four labels because that is what a human can verify. From the prediction step on, we only ask yes/no, using her own definition of yes.
+    </div></div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="step">
+  <div class="head"><div class="num">5</div><h2>Predict a year ahead</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">What we do</div><div>
+      Take what we knew about each brand at the end of one year, and ask a model to guess its label at the end of the next. We let it learn from 2022 to 2024, then test it on 2025, a year it never saw. Two questions:
+      <ul>
+        <li><b>Will the brand still be viable next year?</b> (stable or growing, Kristin's 1)</li>
+        <li><b>Will the brand be growing next year?</b> (the investment question)</li>
+      </ul>
+      The model sees eleven facts about each brand: the three numbers behind the label, store coverage, size, age, last year's sales growth, momentum (how many of the last 8 quarters in a row, counting back from now, sales were at 80% or more of the best the brand had reached up to then; 8 = held its level for two years, 0 = fell off recently), its current label, its category and its price tier.
+      We try two models, a simple one (logistic regression) and a more flexible one (gradient boosting), and compare both to the simplest possible rule, "assume nothing changes," and to the starting idea, "last year's growth alone."
+    </div></div>
+    <div class="row"><div class="k">How we score it</div><div>
+      Sort every brand by how confident the model is, take the top 100, and count how many were actually a 1 a year later. That is the number a buyer cares about: "if I had shortlisted these 100, how many would have worked out?"
+    </div></div>
+    <div class="row"><div class="k">The five lists</div><div>
+      Think of five people each handing you a list of 100 brands at the end of 2024. We check each list against what happened in 2025.
+      <ul>
+        <li><b>Random picking.</b> Close your eyes and point at 100 brands. This is the floor; anything that can't beat it is useless.</li>
+        <li><b>"Nothing changes."</b> Someone who says "whatever a brand is today, it will be the same next year," and picks 100 brands that are healthy today. Lazy but smart, and hard to beat.</li>
+        <li><b>"Last year's growth alone."</b> Someone who looks at one number only, did sales go up last year, and picks the 100 with the best growth. This was the original starting idea.</li>
+        <li><b>Simple model.</b> Logistic regression. Looks at eleven facts about each brand and weighs them.</li>
+        <li><b>Boosted model.</b> Gradient boosting. More flexible; it can learn things like "small brands behave differently from big ones."</li>
+      </ul>
+      We show all five because "96 right" means nothing without "compared to what." A model is only worth having if it beats the person who assumes nothing changes.
+    </div></div>
+    <div class="row"><div class="k">What we found</div><div>
+      Of the 100 brands each approach was most sure about, how many were actually a 1 a year later:
+      <table>
+        <tr><th>Question</th><th>Random picking</th><th>"Nothing changes"</th><th>"Last year's growth alone"</th><th>Simple model</th><th>Boosted model</th></tr>
+        <tr><td>Still viable next year?</td><td>43</td><td>84</td><td>61</td><td class="hit">98</td><td>95</td></tr>
+        <tr><td>Growing next year?</td><td>8</td><td>53</td><td>19</td><td>51</td><td class="hit">65</td></tr>
+      </table>
+      <b>Survival is predictable.</b> 98 of the model's top 100 picks were still viable a year later, and 7 to 10 of the top 10 in every category (six categories at 10 of 10). What drives it: a brand still in most of the stores it ever had almost always survives. The simple model does this as well as the complex one, so we use the simple one.
+      <br><br><b>Growth is much harder, and we say so.</b> Today's growing brands keep growing about half the time (53 of 100). Our best model gets 65 of 100, and its picks are the right kind of brand: mid-sized, growing, across tequila, vodka and cocktails. The gain is real but comes from one test year, and the overall ranking quality barely moves, so we call it "better than picking what is growing now at the top of the list," not more. It is strongest in vodka and tequila (10 and 9 of the top 10) and weakest in cognac, brandy and grain alcohol (2 to 3 of 10).
+      <br><br><b>Last year's sales growth alone predicts neither.</b> 61 and 19 of 100. The idea of predicting next year from this year was right; the signal lives in store coverage and distance from peak, not in last year's growth rate.
+      <br><br><b>What drives what.</b> The <i>labels</i> come from three numbers only: sales vs best, stores vs best, store trend. The <i>predictions</i> use ten facts, but one dominates each question. For "still viable": stores vs best, by a wide margin. For "growing": sales vs best, then stores vs best and last year's growth.
+    </div></div>
+    <div class="row"><div class="k">What the models lean on</div><div>
+      Two ways of asking "which inputs matter," one per model, shown side by side:
+      <ul>
+        <li><b>Simple model:</b> its coefficients. A positive number pushes a brand toward 1, a negative one toward 0, and bigger means stronger.</li>
+        <li><b>Boosted model:</b> it has no coefficients, so we shuffle one input at a time on the test year and measure how much worse its ranking gets. A big drop means the model was relying on that input.</li>
+      </ul>
+      If both models point at the same inputs, that is a sign the signal is real and not an artifact of one method. They do:
+      <table>
+        <tr><th>Input</th><th colspan="2">Still viable next year?</th><th colspan="2">Growing next year?</th></tr>
+        <tr><th></th><th>Simple model</th><th>Boosted model</th><th>Simple model</th><th>Boosted model</th></tr>
+        <tr><td>Stores vs best</td><td class="hit">1.03</td><td class="hit">0.242</td><td>0.40</td><td>0.017</td></tr>
+        <tr><td>Sales vs best</td><td>0.07</td><td>0.012</td><td class="hit">1.01</td><td class="hit">0.249</td></tr>
+        <tr><td>Brand size</td><td>0.13</td><td>0.048</td><td>-0.02</td><td>0.001</td></tr>
+        <tr><td>Store coverage now</td><td>0.27</td><td>0.009</td><td>-0.17</td><td>0.004</td></tr>
+        <tr><td>Last year's sales growth</td><td>0.18</td><td>0.003</td><td>0.25</td><td>0.002</td></tr>
+        <tr><td>Store trend</td><td>0.04</td><td>0.004</td><td>-0.03</td><td>0.005</td></tr>
+        <tr><td>Momentum (quarters near best)</td><td>0.19</td><td>0.000</td><td>0.26</td><td>0.002</td></tr>
+      </table>
+      <span style="font-size:12px;color:var(--muted)">Simple model: coefficient (positive pushes toward 1). Boosted model: drop in ranking quality when the input is shuffled. Category and price tier are all near zero and left out. We also tried price per unit and promotion share: both scored zero and were set aside. Momentum scores low here because this measures the whole 5,800-brand ranking; its effect is at the very top of the list, where it lifted the growing top 100 from 60 to 65.</span>
+      <br><br>Two things to take from it. <b>Survival is about stores</b>: a brand still in most of the stores it ever had is the one that lasts. <b>Growth is about sales momentum</b>: being at or near your best sales stretch. And the brand's four-word label itself adds nothing once the model has the three numbers behind it, which confirms those three numbers carry the whole story.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>We only score brands that sold 250+ cases in the year we know</b> (about 5 a week across the whole market). We tried no floor first. With it off, the top of the "growing" list filled with brands selling 19 to 300 cases a year, most of them wrong a year later: a brand that barely exists is always "at its best," and going from 19 cases to 25 counts as growing. The hit rate in the top 100 was 40. With the floor it is 65, and the shortlist is mid-sized brands someone could act on. Brands under the floor still get a label and still appear in the table; they just get no score. <span class="ok">250 is a round number that cleared out the noise, not a business judgment.</span> <b>Eurpac's answer (Oct 19):</b> exclude the smallest 10% of brands and send them the case count that implies, for Chaz to confirm. That replaces the fixed 250.</div>
+      <div class="issue"><b>The viable list is topped by giants.</b> A huge stable brand is correctly 95% likely to still be viable. Not an investment. <span class="ok">Plan:</span> the final list for Eurpac shows brands that are growing now and that the model expects to survive, ranked within each category.</div>
+      <div class="issue"><b>One test year.</b> We tested on 2025 only, because five years of data give three one-year steps and we need two to learn from. <span class="ok">Okay because</span> it is a true out-of-sample test; more years of data will add more test years.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="step">
+  <div class="head"><div class="num">6</div><h2>Predict next year, for real</h2></div>
+  <div class="body">
+    <div class="row"><div class="k">Step 5 vs step 6</div><div>
+      Step 5 pretended it was the end of 2024, predicted 2025, and checked the answers. That proved the models, but its predictions are about a year that is over. Step 6 stands at the end of 2025 and predicts 2026, which nobody has seen yet. Same models, same inputs; step 5 proves it, step 6 uses it.
+    </div></div>
+    <div class="row"><div class="k">What we do</div><div>
+      Train on every year we have, then score every brand as of the newest year-end. The result is one table, one row per brand: category, price tier, cases last year, label today, the reason behind it, chance of being viable next year, chance of growing next year, rank overall and rank within its category. Plus a short list of the top 10 growing chances in each category.
+      Ranking is by chance of growing, not chance of viable: a giant brand's 95% chance of surviving is correct but not useful. Eurpac is a broker first, so this is a list of brands worth a call about representation, not an acquisition list.
+    </div></div>
+    <div class="row"><div class="k">What a chance means</div><div>
+      "Chance of growing 0.65" means: of 100 brands that looked like this one, about 65 were growing a year later. The models are trained to treat yes and no as equally common, which is right for ranking but inflates the raw numbers (growing's more than viable's, because growing is rarer). So step 6 calibrates each model: it maps the model's score back to how often yes really happened in the training years. Brands keep exactly the same order, so step 5's hit rates stand; only the printed number changes. Growing is part of viable (stable or growing), so viable is the bigger of the two chances. Nothing forces that; step 6 prints how often the two models disagree. The top growing chances sit around 0.60, which matches the 65-of-100 test.
+    </div></div>
+    <div class="row"><div class="k">What Eurpac runs each year</div><div>
+      Steps 3, 4 and 5 are proof. They were run once, for the paper, and do not need repeating. When new NIQ files arrive, the yearly run is: load the data (step 1), label every brand (step 2), predict next year (step 6). Step 6 calls the other two itself, so in practice it is one file. The year-ends are read from the data, so a new year of files needs no code change. The production copy will add the Excel export.
+    </div></div>
+    <div class="row"><div class="k">Issues</div><div>
+      <div class="issue"><b>The smallest brands are listed but not scored.</b> The floor is the bottom 10% of brands by cases (Eurpac's preference, Oct 19); the case count it implies goes to Chaz to confirm. One setting to change.</div>
+      <div class="issue"><b>A brand needs a year of history for a label and two years for a score.</b> A brand launched six months ago appears with no label yet. <span class="ok">Okay because</span> there is no chart to read; this is the method, not a bug.</div>
+      <div class="issue"><b>Running it needs Python.</b> <span class="ok">Options:</span> Eurpac installs it and points one settings file at their data folder, or the SMU team runs it for them each year. A stripped-down "production" copy with only steps 1, 2 and 6 will be handed over at the end.</div>
+    </div></div>
+  </div>
+</div>
+
+<h2 style="font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);margin:26px 0 10px">What comes next</h2>
+<div class="next">
+  <div class="card"><b>From the Oct 19 call</b>Survival is the priority; the list is for finding brands to sign and represent, not acquire. Next: set the floor at the bottom 10% of brands, add a "beats its own category" measure, compare against Kristin's opportunity score, and ask Scott for acquisition dates.</div>
+  <div class="card"><b>The paper</b>Methods and results sections rewritten around steps 1 to 6, with the tables from steps 3, 4 and 5.</div>
+  <div class="card"><b>Production copy</b>Steps 1, 2 and 6 only, with a one-page setup guide, for Eurpac to run on their own.</div>
+  <div class="card"><b>Later: ROI</b>Only possible with cost or margin data from Eurpac.</div>
+</div>
+
+<div class="foot">Data is NIQ scanner data under NDA. No brand-level numbers appear in this guide.</div>
+</div>
+</body>
+</html>
