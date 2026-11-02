@@ -1,6 +1,6 @@
 # Capstone Project Status - Living Log
 
-**Last updated: 2026-10-29**
+**Last updated: 2026-11-02**
 This is the single running "where we are" document. It gets updated every session.
 
 ---
@@ -21,7 +21,7 @@ Label every spirits brand the way Kristin labeled by hand, prove the labels matc
 
 ---
 
-## Where we are (2026-10-19)
+## Where we are (2026-11-02)
 
 The pipeline is built and tested end to end, in six steps:
 
@@ -32,7 +32,7 @@ The pipeline is built and tested end to end, in six steps:
 | 3 Check vs Kristin | Her 112 hand-labeled vodka brands vs ours | 90% agree on tier, 95% on viable/not (her model: 84%) |
 | 4 Check across categories | Label mix by category; July vs January seasonality test | Same mix everywhere; no seasonal bias |
 | 5 Predict | Viable next year? Growing next year? Two baselines, logistic regression, gradient boosting, tested on 2025 (never seen) | Viable: 98 of top 100 (random 43, "nothing changes" 84). Growing: 65 of top 100 (random 8, "growing now" 53) |
-| 6 Predict for real | Score every brand as of end of 2025, looking at 2026 | `predictions` table, ranked by chance of growing |
+| 6 Predict for real | Score every brand as of end of 2025, looking at 2026. Chances calibrated (D23) so 0.65 means about 65 in 100 | `predictions` table, ranked by chance of growing |
 
 Key findings: survival is driven by store coverage vs the brand's best; growth by sales vs best plus momentum (quarters in a row near its best). Last year's sales growth alone predicts neither. Rules and models are category-free by construction (every brand judged against its own history).
 
@@ -72,6 +72,16 @@ What we tried and dropped: a growth-threshold label (40%, then calibrated to 10%
 
 ## Action items / next up
 
+After the Nov 2 demo (Eurpac loved it). Jacob: upload/retrain plus category context would make this round a success.
+
+- [ ] **Category context, for next week's call** (Jacob's ask, Devin's earlier commitment): each extension vs its category, as a fourth ratio next to the three. Exclude weak brands below a floor from the category comparison. Scott's example: RTDs up 16%, bourbon down 5%.
+- [ ] **Retrain at 500 cases** and show results next to the 250 baseline (`step05_predict_floor500.py`). Scott: cocktails and seltzers may need higher thresholds than mainstay spirits.
+- [ ] **Upload new data and retrain inside the app** (by end of program). Retraining is 5 to 10 minutes, occasional. Guardrails needed.
+- [ ] **Supplier view:** a Nielsen manufacturer's full portfolio on one page.
+- [ ] Smaller ideas from the call: flag brands growing several years in a row; several brands on one chart; different case minimums per use case (incubation vs acquisition).
+- [ ] Weekly Eurpac meetings from now on (Jacob sends invites; Chaz and Scott optional).
+- [x] Hosting: stays local for now (decided on the call). If hosted later, their own account (AWS est. under $5 a month); data security is the concern.
+
 - [ ] Category context: add "does the brand beat its own category" (Devin's commitment on the call). Decide whether it is a second label or an extra input.
 - [ ] Compare our scores against Kristin's opportunity score (Devin's commitment). Needs her un-anonymized scored file: ask her again.
 - [ ] Settle with Devin what "validate beyond vodka" means: step 4's cross-category checks (current position) or hand-labeling whiskey (we decided against).
@@ -94,6 +104,9 @@ What we tried and dropped: a growth-threshold label (40%, then calibrated to 10%
 ---
 
 ## Meeting log
+
+### 2026-11-02 - Eurpac demo (Jacob Saunders, Chaz Cahn, Scott; Drew, Devin). Summary in `Meetings/Eurpac_11-02-26_summary.txt`.
+Drew demoed Brand Radar. Went well: Don Fulano and G4 Reposado confirmed as real winners; Chaz sees two current clients in the top 10 and would use the list when pitching retailers. Asks: category context as a fourth ratio, retrain at 500, upload and retrain in the app, supplier portfolio view. Decision: stay local for now. Weekly meetings from here. (Wispr Flow's notes label the demo "Streeter"; it was Drew.)
 
 ### 2026-10-19 - Eurpac call (Jacob Saunders; Drew, Devin). Recording starts at question 3.
 - Q1 unit: **extensions** (from Drew's notes).
