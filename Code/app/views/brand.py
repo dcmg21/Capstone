@@ -6,7 +6,8 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from common import (EURPAC_BLUE, GLOSS_LINE, LABEL_COLORS, LABEL_GLOSS, LABEL_WORDS, current_floor, explain, footer,
-                    decline_fired, header, label_chip, load_labels, load_predictions, load_weekly, short_reason, sidebar_watchlist)
+                    decline_fired, header, label_chip, load_labels, load_predictions, load_weekly, short_reason, sidebar_watchlist,
+                    times)
 
 header("One Brand")
 floor = current_floor()
@@ -19,21 +20,13 @@ def pct(x, signed=False):
     return f"{x:+.0%}" if signed else f"{x:.0%}"
 
 
-def change(ratio):
-    """A this-year / last-year ratio as words: '+41%', '-22%', or 'many times over' from almost nothing."""
-    if ratio is None or pd.isna(ratio):
-        return "n/a"
-    if ratio >= 5:
-        return "many times over"
-    return f"{ratio - 1:+.0%}"
+change = times   # '+41%', '-22%', or '7.6x' for a big jump
 
 
 def verdict(ratio):
     """Brand's change divided by the category's: ahead, keeping pace, or behind."""
     if ratio is None or pd.isna(ratio):
         return ""
-    if ratio >= 5:
-        return "not comparable"
     return "ahead" if ratio >= 1.1 else ("keeping pace" if ratio >= 0.9 else "behind")
 
 
@@ -146,6 +139,10 @@ if last is not None:
                 f" &nbsp; <span class='reason' style='color:#9CA3AF'>(outlined cells decided it)</span>", unsafe_allow_html=True)
 else:
     st.markdown(f"Label today: {label_chip(row['label'], gloss=True)}", unsafe_allow_html=True)
+if bool(row.get("comes_and_goes", False)):
+    st.warning("**Comes and goes.** This brand had half a year or more with no sales somewhere in its history (seasonal item, "
+               "limited run or relaunch). Its \"vs its best\" and \"vs a year ago\" numbers measure a calendar as much as a trend, "
+               "and the green line breaks where nothing sold. Read the label and the chances with that in mind.")
 if not scored:
     st.info("Below the 12-case scoring floor, so no chance is given. The label and chart still apply.")
 elif row["cases_last_year"] < floor:
@@ -207,7 +204,7 @@ def walkthrough(r, wk, cat):
     q13_c, best_c = c.loc[W - 12:W].mean(), c.loc[:W].rolling(13, min_periods=1).mean().max()
     q13_a, best_a = a.loc[W - 12:W].mean(), a.loc[:W].rolling(13, min_periods=1).mean().max()
     sb, st_, tr = r["sales_vs_best"], r["stores_vs_best"], r["store_trend"]
-    tr_shown = "n/a (no prior year, treated as flat)" if pd.isna(tr) else (f"{tr - 1:+.0%}" if tr < 5 else "up many times over")
+    tr_shown = "n/a (no prior year, treated as flat)" if pd.isna(tr) else times(tr)
     tr = 1.0 if pd.isna(tr) else tr
     yes, no = "**Yes**", "no"
     q1 = (sb < 0.10) and (st_ < 0.10)
@@ -241,8 +238,8 @@ def walkthrough(r, wk, cat):
         st.markdown(f"""
 | | This brand | {cat.title()} | Brand ÷ category | Reading |
 |---|---|---|---|---|
-| Sales vs a year ago | {change(r['sales_growth'])} | {change(g)} | {min(r['vs_category'], 5):.2f}{"+" if r['vs_category'] > 5 else ""} | {verdict(r['vs_category'])} |
-| Shelf vs a year ago | {change(r['store_trend'])} | {change(cs)} | {"n/a" if pd.isna(r.get('vs_shelf')) else f"{min(r['vs_shelf'], 5):.2f}"} | {verdict(r.get('vs_shelf'))} |
+| Sales vs a year ago | {change(r['sales_growth'])} | {change(g)} | {times(r['vs_category'])} | {verdict(r['vs_category'])} |
+| Shelf vs a year ago | {change(r['store_trend'])} | {change(cs)} | {times(r.get('vs_shelf'))} | {verdict(r.get('vs_shelf'))} |
 """)
         st.caption("The category comparison does not change the label. The model sees the sales comparison as an input; "
                    "both are here so a person can judge the brand against its field.")

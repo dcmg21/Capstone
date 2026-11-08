@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from common import GLOSS_LINE, current_floor, footer, header, label_chip, load_labels, sidebar_watchlist
+from common import GLOSS_LINE, current_floor, footer, header, label_chip, load_labels, sidebar_watchlist, times
 
 header("How Labels Work")
 current_floor()
@@ -12,10 +12,7 @@ year = int(labels["as_of"].max())
 latest = labels[labels["as_of"] == year].set_index("brand")
 
 
-def fmt_change(x):
-    if pd.isna(x):
-        return "n/a"
-    return "many times over" if x >= 5 else f"{x - 1:+.0%}"
+fmt_change = times   # '+41%', '-22%', or '7.6x' for a big jump
 
 
 # ---- 1. what we measure ---------------------------------------------------------------
@@ -31,7 +28,8 @@ person looked at when labeling brands by hand, and it is the thick line on every
 A week with no sales in any tracked store has zero cases and **no shelf reading** (NIQ reports %ACV only where the brand
 sold), so a brand that comes and goes shows breaks in its green line, and its shelf numbers for that year rest on the
 weeks it was on a shelf. That is rare above the 250-case floor (about 1 brand in 100 has large gaps) and common below it,
-which is one more reason the floor exists.
+which is one more reason the floor exists. Brands with half a year or more of no sales somewhere in their history are
+flagged **"comes and goes"** (about 3 in 100 on the List: seasonal items, limited runs, relaunches); the List can hide them.
 
 A **year-end** is the last week of each 52-week block of data: weeks 104, 156, 208, 260 are the ends of 2022 to {year}.
 A brand gets a label at each year-end it has been around for, once it has at least 52 weeks of history.
@@ -142,8 +140,8 @@ Added in November 2026 at Eurpac's request. Two more numbers per brand, **contex
 | **Shelf vs category** | brand's shelf vs a year ago ÷ category's | 0.85 = lost shelf faster than its field |
 
 **Established brands** means two full years of history and at least 250 cases the year before, so a brand is compared
-with real competitors, not with new launches or dying 10-case brands. Ratios of 5 or more are shown as 5 (the brand
-barely existed the year before).
+with real competitors, not with new launches or dying 10-case brands. Big jumps show as a multiple ("7.6x" means this
+year was 7.6 times last year). A very large ratio means the brand sold almost nothing the year before.
 
 We tested both as model inputs. Neither changed the predictions (importance near zero): a brand's own history already
 carries whatever its category is doing. They are on screen because a person reading the list wants them.

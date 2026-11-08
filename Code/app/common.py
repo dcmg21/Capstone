@@ -106,11 +106,20 @@ def decline_fired(r):
     return tr < 0.90 + TOL, r["stores_vs_best"] < 0.40 + TOL
 
 
+def times(ratio):
+    """A this-year / last-year ratio as words: '+41%', '-22%', or '7.6x' for big jumps."""
+    if ratio is None or pd.isna(ratio):
+        return "n/a"
+    if ratio >= 3:
+        return f"{ratio:.1f}x" if ratio < 10 else f"{ratio:.0f}x"
+    return f"{ratio - 1:+.0%}"
+
+
 def shelf_change(tr):
-    """Store trend as words, with the huge-from-nothing case handled."""
+    """Store trend as words, for the reason lines."""
     if pd.isna(tr):
         return "no prior year"
-    return "up many times over" if tr >= 5 else f"{tr - 1:+.0%} vs a year ago"
+    return f"{times(tr)} vs a year ago"
 
 
 def short_reason(r):

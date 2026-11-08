@@ -22,6 +22,7 @@ One row per brand that sold at least **{floor} cases** in {year} (the size floor
 - **Label today**: what the brand is at the end of {year}, by the same rules a human used. The labels are about shelf space more than sales: {GLOSS_LINE}.
 - **Viable {year + 1}** and **Growing {year + 1}**: the model's chance, 0 to 1, that the brand will still be viable / be growing a year from now.
   Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable should be the bigger number (two separate models, so a rare one- or two-point disagreement can happen).
+- **Comes and goes** (filter): brands with half a year or more of no sales somewhere in their history, usually seasonal items, limited runs or relaunches. Their numbers measure a calendar, not a trend; the checkbox hides them.
 - **Years of data**: how long the brand has been in the data. A brand with two years can look "at its best" just because there is little history behind it; the filter on the left lets you require more.
 - **Sales vs category** and **Shelf vs category**: the brand's change over the year divided by its category's change (established brands only). 1.00 = moved with the category, 1.20 = did 20% better, 0.85 = lost ground. Added at Eurpac's request; the models see the sales one.
 - **Why this label**: what the label means and the one number that decided it, e.g. "lost shelf space: shelf 20% of its best". Sales vs best = cases last quarter as a share of the brand's best quarter ever.
@@ -35,7 +36,8 @@ Filter on the left, sort with "Rank by," click a row to open that brand, pin bra
 # saved in session_state and saves itself back, so the filters survive a trip to another page.
 RANKS = ["chance of growing", "chance of viable", "cases last year"]
 f = st.session_state.setdefault("list_filters", dict(
-    cats=[], tiers=[], labels=[], min_years=1, min_grow=0.0, min_viab=0.0, search="", sort_by=RANKS[0], top_n=10))
+    cats=[], tiers=[], labels=[], min_years=1, min_grow=0.0, min_viab=0.0, search="", sort_by=RANKS[0], top_n=10,
+    hide_gaps=False))
 with st.sidebar:
     st.markdown("## Filters")
     cats = sorted(p["category"].astype(str).unique())
@@ -53,6 +55,10 @@ with st.sidebar:
     f["min_grow"] = st.slider(f"Chance growing {year + 1} at least", 0.0, 1.0, f["min_grow"], 0.05,
                               help="Then: of those, which will take off")
     f["search"] = st.text_input("Search", value=f["search"], placeholder="brand or family name")
+    if "comes_and_goes" in p.columns:
+        f["hide_gaps"] = st.checkbox("Hide brands that come and go", value=f["hide_gaps"],
+                                     help="Seasonal items, limited runs and relaunches: brands with half a year or more of no sales "
+                                          "somewhere in their history. Their 'vs best' and 'vs a year ago' numbers measure a calendar, not a trend.")
     f["sort_by"] = st.radio("Rank by", RANKS, index=RANKS.index(f["sort_by"]))
     st.markdown("## Pin")
     c_n, c_b = st.columns([1, 2])
@@ -72,6 +78,8 @@ if labels_today:
     view = view[view["label"].isin(labels_today)]
 view = view[(view["chance_growing_next_year"] >= min_grow) & (view["chance_viable_next_year"] >= min_viab)
             & (view["years_of_data"] >= min_years)]
+if f["hide_gaps"] and "comes_and_goes" in view.columns:
+    view = view[~view["comes_and_goes"]]
 if search:
     s = search.upper()
     view = view[view["brand"].str.upper().str.contains(s, regex=False)
@@ -98,8 +106,6 @@ nums = load_labels().query("as_of == @year").set_index("brand")[["sales_vs_best"
 nums = nums.reindex(show["brand"])
 show["reason"] = [why_label(r) for r in nums.to_dict("records")]   # gloss, then the number that decided it
 show.insert(0, "#", range(1, len(show) + 1))
-for c_ in cat_cols:
-    show[c_] = show[c_].clip(upper=5)   # 5 means "5 or more": the brand barely existed the year before
 show["label"] = show["label"].map(LABEL_WORDS)
 show.columns = ["#", "Brand", "Category", "Price tier", f"Cases {year}", "Years of data", "Label today",
                 f"Viable {year + 1}", f"Growing {year + 1}"] + (["Sales vs category"] if has_cat else []) \
@@ -122,8 +128,8 @@ picked_row = st.dataframe(
                                                               help=f"Model's chance the brand is growing at the end of {year + 1}. Growing is part of viable, so this is the smaller number"),
         "Sales vs category": st.column_config.NumberColumn(format="%.2f", width=110,
                                                            help=f"The brand's sales change in {year} divided by its category's. 1.00 = moved with the category, "
-                                                                "1.20 = grew 20% faster than it, 0.85 = lost ground. Capped at 5.00 (the brand barely sold "
-                                                                "the year before). The category means its established brands: two full years of history, 250+ cases a year earlier"),
+                                                                "1.20 = grew 20% faster than it, 0.85 = lost ground. A very large number means the brand sold "
+                                                                "almost nothing the year before. The category means its established brands: two full years of history, 250+ cases a year earlier"),
         "Shelf vs category": st.column_config.NumberColumn(format="%.2f", width=110,
                                                            help=f"The brand's store-count change in {year} divided by its category's. 1.00 = moved with the category, "
                                                                 "1.10 = held shelf 10% better than it, 0.85 = lost shelf faster. Same established-brand baseline"),
