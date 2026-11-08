@@ -1,11 +1,12 @@
 """One brand: its chart, its label at every year-end, and why it got its score."""
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
 
 from common import (EURPAC_BLUE, LABEL_COLORS, LABEL_WORDS, current_floor, explain, footer, header, label_chip,
-                    load_labels, load_predictions, load_weekly, sidebar_watchlist)
+                    load_labels, load_predictions, load_weekly, sidebar_watchlist, with_category_context)
 
 header("One Brand")
 floor = current_floor()
@@ -34,7 +35,7 @@ def why(r):
     return " ".join(why_lines(r))
 
 
-p, labels, weekly = load_predictions(), load_labels(), load_weekly()
+p, labels, weekly = with_category_context(load_predictions(), floor), load_labels(), load_weekly()
 year = int(p["as_of"].iloc[0])
 YEAR_END_WEEK = {2022: 104, 2023: 156, 2024: 208, 2025: 260, 2026: 312, 2027: 364}
 
@@ -80,6 +81,11 @@ with c1:
     st.markdown(f"{row['family']} · {cat} · {row['price_tier']}")
     st.markdown(f"Label today: {label_chip(row['label'])}", unsafe_allow_html=True)
     st.markdown(f'<div class="reason">{why(last) if last is not None else row["reason"]}</div>', unsafe_allow_html=True)
+    if pd.notna(row["vs_category"]):
+        verdict = "beating" if row["vs_category"] > 0 else "trailing"
+        st.caption(f"Cases {row['case_growth']:+.0f}% vs {year - 1}; the {cat.title()} category {row['category_growth']:+.0f}% "
+                   f"(extensions with {floor}+ cases). "
+                   f"**{verdict.capitalize()} its category by {abs(row['vs_category']):.0f} pts.**")
 scored = bool(row[["chance_growing_next_year"]].notna().iloc[0])
 for col, val, text, tip in [
     (c2, f"{row['cases_last_year']:,.0f}", f"cases in {year}", "9-liter cases sold in the last 52 weeks"),
