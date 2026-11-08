@@ -15,6 +15,9 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "brand_scoring_extension"))
 
@@ -27,6 +30,24 @@ TRAIN_FLOOR = MIN_CASES   # 250: the floor the models were validated at
 SCORE_FLOOR = 12          # score everything down to one case a month; the app slider decides what to show
 DATA = HERE / "data"
 
+
+def full_week_grid(weekly):
+    """One row per brand per week from its first week to the end of the data, with 0 cases and 0 coverage
+    in weeks it did not sell. This is the grid step 2 labels from (weekly_tables), so the 13-week average
+    on the brand chart is the same one the labels were read from."""
+    last = int(weekly["week"].max())
+    first = weekly.groupby("brand")["week"].min()
+    n = (last - first + 1).to_numpy()
+    offset = np.arange(n.sum()) - np.repeat(np.cumsum(n) - n, n)
+    grid = pd.DataFrame({"brand": np.repeat(first.index.to_numpy(), n),
+                         "week": (np.repeat(first.to_numpy(), n) + offset).astype(weekly["week"].dtype)})
+    dates = weekly.drop_duplicates("week").set_index("week")["period_date"]
+    out = grid.merge(weekly.drop(columns="period_date"), on=["brand", "week"], how="left")
+    out["period_date"] = out["week"].map(dates)
+    out[["cases", "store_coverage"]] = out[["cases", "store_coverage"]].fillna(0)
+    return out[["brand", "week", "period_date", "cases", "store_coverage"]]
+
+
 if __name__ == "__main__":
     t0 = time.time()
     DATA.mkdir(exist_ok=True)
@@ -38,12 +59,18 @@ if __name__ == "__main__":
     viable_model, growing_model, columns = fit_models(rows)
     predictions, year = score_latest(labels, viable_model, growing_model, columns, min_cases=SCORE_FLOOR)
     predictions["as_of"] = year
+    # The two models are fit and calibrated separately, so a few brands come out with growing > viable.
+    # Every growing brand is viable, so viable can never be the smaller chance: lift it to growing.
+    flipped = (predictions["chance_growing_next_year"] > predictions["chance_viable_next_year"]).sum()
+    predictions["chance_viable_next_year"] = predictions[["chance_viable_next_year",
+                                                          "chance_growing_next_year"]].max(axis=1, skipna=False)
 
     weekly = (sales.groupby([BRAND, "week", "period_date"], observed=True)
                    .agg(cases=("Case", "sum"), store_coverage=("%ACV", "max")).reset_index()
                    .rename(columns={BRAND: "brand"}))
     weekly["brand"] = weekly["brand"].astype(str)
     weekly["cases"] = weekly["cases"].clip(lower=0)
+    weekly = full_week_grid(weekly)
 
     predictions.to_parquet(DATA / "predictions.parquet", index=False)
     labels.to_parquet(DATA / "labels.parquet", index=False)
@@ -51,6 +78,7 @@ if __name__ == "__main__":
 
     scored = predictions["chance_growing_next_year"].notna().sum()
     print(f"predictions: {len(predictions):,} brands as of end of {year}, {scored:,} scored (>= {SCORE_FLOOR} cases)")
+    print(f"             {flipped:,} had chance growing > chance viable; viable lifted to match")
     print(f"labels:      {len(labels):,} brand-years")
     print(f"weekly:      {len(weekly):,} brand-weeks")
     print(f"Wrote 3 files to {DATA} in {time.time() - t0:.0f}s")

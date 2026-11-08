@@ -1,5 +1,6 @@
 """One brand: its chart, its label at every year-end, and why it got its score."""
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
@@ -11,22 +12,35 @@ header("One Brand")
 floor = current_floor()
 
 
+def store_change(tr):
+    """Store coverage this year vs last, in words. The rules treat a missing trend (no stores last year)
+    as flat, so this does too. A tenfold jump means it was in almost no stores a year ago; a percent
+    like +5000% says nothing useful, so it gets words instead."""
+    if pd.isna(tr):
+        tr = 1.0
+    if tr >= 10:
+        return "far more stores than a year ago (it was in almost none)"
+    return f"{tr - 1:+.0%} stores vs a year ago"
+
+
 def why_lines(r):
     """Which question got a yes, then the numbers behind it, as short lines. Same order as the rules."""
     sb, st_, tr = r["sales_vs_best"], r["stores_vs_best"], r["store_trend"]
+    if pd.isna(sb) or pd.isna(st_):
+        return ["No sales or store coverage on record, so there is no best to compare against."]
     if r["label"] == "discontinued":
         return ["Dead.", f"Sales at {sb:.0%} of its best", f"and in only {st_:.0%} of the stores it once had."]
     if r["label"] == "growing":
-        return ["On fire.", f"Selling at {sb:.0%} of its best", f"and in {tr - 1:+.0%} stores vs a year ago."]
+        return ["On fire.", f"Selling at {sb:.0%} of its best", f"and in {store_change(tr)}."]
     if r["label"] == "decline":
         lines = ["Slipping off shelves."]
-        if tr < 0.90:
+        if not pd.isna(tr) and tr < 0.90:
             lines.append(f"In {1 - tr:.0%} fewer stores than a year ago.")
         if st_ < 0.40:
             lines.append(f"In only {st_:.0%} of the stores it once had.")
         return lines
     return ["Not dead, not on fire, not slipping.", f"Selling at {sb:.0%} of its best,",
-            f"in {st_:.0%} of the stores it once had,", f"stores {tr - 1:+.0%} vs a year ago."]
+            f"in {st_:.0%} of the stores it once had,", f"and in {store_change(tr)}."]
 
 
 def why(r):
@@ -108,7 +122,7 @@ fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["cases"].rolling(13).mean(), 
 fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["store_coverage"], name="coverage, weekly", hoverinfo="skip",
                          line=dict(color="#86EFAC", width=1), opacity=0.7), row=2, col=1)
 fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["store_coverage"].rolling(13).mean(), name="coverage, 13-week average",
-                         hovertemplate="%{x|%b %d, %Y}<br>in %{y:.0%} of stores (13-week average)<extra></extra>",
+                         hovertemplate="%{x|%b %d, %Y}<br>%ACV %{y:.0f} (13-week average)<extra></extra>",
                          line=dict(color="#15803D", width=2.5)), row=2, col=1)
 if overlay:
     cat_brands = p.loc[p["category"].astype(str) == cat, "brand"]
@@ -172,7 +186,10 @@ Yes to none of the three → **Stable**. Nothing dramatic is happening.
 
 The green line does most of the work. Sales only matter for the two extremes.
 """)
-    if last is not None:
+    if last is not None and not (pd.isna(last["sales_vs_best"]) or pd.isna(last["stores_vs_best"])):
+        trend = last["store_trend"]
+        trend = ("n/a (no stores a year ago; the rules count it as flat)" if pd.isna(trend)
+                 else "10+ (was in almost no stores)" if trend >= 10 else f"{trend:.2f}")
         st.markdown(f"""
 **{brand} today, the three numbers the questions use**
 
@@ -180,7 +197,7 @@ The green line does most of the work. Sales only matter for the two extremes.
 |---|---|---|
 | Sales vs best | **{last['sales_vs_best']:.0%}** | cases in the last quarter, as a share of the best quarter ever |
 | Stores vs best | **{last['stores_vs_best']:.0%}** | store coverage now, as a share of the most it ever had |
-| Store trend | **{last['store_trend']:.2f}** | coverage this year / last year (above 1 = more stores) |
+| Store trend | **{trend}** | coverage this year / last year (above 1 = more stores) |
 """)
 
 sidebar_watchlist()
