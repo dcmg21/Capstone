@@ -27,12 +27,12 @@ Every page has a collapsed "What am I looking at?" box at the top, and hover hel
 **Sidebar:** the size floor on Home and The List (default 250, remembered as you move between pages; it hides
 small brands everywhere, it does not retrain anything) and the watchlist on every page (pin from the List or Brand page, download as text).
 
-**The chances are calibrated** (step 6, D23): 0.65 means about 65 in 100 brands like this one. Growing is part of viable, so viable is the bigger number.
+**The chances are calibrated** (step 6, D23): 0.65 means about 65 in 100 brands like this one. Growing is part of viable, so viable should be the bigger number; the two models are separate, so rare small disagreements can happen.
 
 ## Files
 
-    app.py                 home
-    pages/                 the three pages
+    app.py                 the router: sets up the four pages
+    views/                 home.py, list.py, brand.py, model.py
     common.py              data loading, colors, header, shared CSS
     build_app_data.py      runs pipeline steps 1, 2, 6 and writes data/
     data/                  predictions.parquet, labels.parquet, weekly.parquet (NIQ data: do not share outside the team and Eurpac)

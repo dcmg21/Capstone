@@ -5,7 +5,7 @@ import io
 import pandas as pd
 import streamlit as st
 
-from common import LABEL_WORDS, explain, footer, header, load_predictions, sidebar_controls, sidebar_watchlist
+from common import GLOSS_LINE, LABEL_WORDS, explain, footer, header, load_labels, load_predictions, sidebar_controls, sidebar_watchlist, why_label
 
 header("The List")
 floor = sidebar_controls()
@@ -19,11 +19,12 @@ if "years_of_data" not in p.columns:
 explain("The list", f"""
 One row per brand that sold at least **{floor} cases** in {year} (the size floor in the sidebar).
 
-- **Label today**: what the brand is at the end of {year}, by the same rules a human used.
+- **Label today**: what the brand is at the end of {year}, by the same rules a human used. The labels are about shelf space more than sales: {GLOSS_LINE}.
 - **Viable {year + 1}** and **Growing {year + 1}**: the model's chance, 0 to 1, that the brand will still be viable / be growing a year from now.
-  Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable is the bigger number.
+  Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable should be the bigger number (two separate models, so a rare one- or two-point disagreement can happen).
 - **Years of data**: how long the brand has been in the data. A brand with two years can look "at its best" just because there is little history behind it; the filter on the left lets you require more.
-- **Why this label**: the three numbers behind the label, in words. Sales vs best = cases last quarter as a share of the brand's best quarter ever.
+- **Sales vs category** and **Shelf vs category**: the brand's change over the year divided by its category's change (established brands only). 1.00 = moved with the category, 1.20 = did 20% better, 0.85 = lost ground. Added at Eurpac's request; the models see the sales one.
+- **Why this label**: what the label means and the one number that decided it, e.g. "lost shelf space: shelf 20% of its best". Sales vs best = cases last quarter as a share of the brand's best quarter ever.
   Stores vs best = store coverage now as a share of the most it ever had. Store count = coverage this year vs last year.
 
 Filter on the left, sort with "Rank by," click a row to open that brand, pin brands to the watchlist, or download the list.
@@ -88,12 +89,21 @@ if pin_clicked:
         if name not in st.session_state["watch"]:
             st.session_state["watch"].append(name)
     st.rerun()
+has_cat = "vs_category" in view.columns
+has_shelf = "vs_shelf" in view.columns
+cat_cols = (["vs_category"] if has_cat else []) + (["vs_shelf"] if has_shelf else [])
 show = view[["brand", "category", "price_tier", "cases_last_year", "years_of_data", "label",
-             "chance_viable_next_year", "chance_growing_next_year", "reason"]].copy()
+             "chance_viable_next_year", "chance_growing_next_year"] + cat_cols + ["reason"]].copy()
+nums = load_labels().query("as_of == @year").set_index("brand")[["sales_vs_best", "stores_vs_best", "store_trend", "label"]]
+nums = nums.reindex(show["brand"])
+show["reason"] = [why_label(r) for r in nums.to_dict("records")]   # gloss, then the number that decided it
 show.insert(0, "#", range(1, len(show) + 1))
+for c_ in cat_cols:
+    show[c_] = show[c_].clip(upper=5)   # 5 means "5 or more": the brand barely existed the year before
 show["label"] = show["label"].map(LABEL_WORDS)
 show.columns = ["#", "Brand", "Category", "Price tier", f"Cases {year}", "Years of data", "Label today",
-                f"Viable {year + 1}", f"Growing {year + 1}", "Why this label"]
+                f"Viable {year + 1}", f"Growing {year + 1}"] + (["Sales vs category"] if has_cat else []) \
+               + (["Shelf vs category"] if has_shelf else []) + ["Why this label"]
 
 picked_row = st.dataframe(
     show, hide_index=True, height=520, on_select="rerun", selection_mode="single-row",
@@ -105,12 +115,20 @@ picked_row = st.dataframe(
         f"Cases {year}": st.column_config.NumberColumn(format="localized", width=100, help=f"9-liter cases sold in {year}"),
         "Years of data": st.column_config.NumberColumn(format="%.1f", width=115,
                                                       help="Years since the brand first appeared in the data. Under 2 means its 'best ever' is a short history"),
-        "Label today": st.column_config.TextColumn(width=115, help=f"Discontinued, declining, stable or growing at the end of {year}"),
+        "Label today": st.column_config.TextColumn(width=115, help=f"At the end of {year}. {GLOSS_LINE}"),
         f"Viable {year + 1}": st.column_config.ProgressColumn(format="%.2f", min_value=0, max_value=1, width=120,
                                                              help=f"Model's chance the brand is stable or growing at the end of {year + 1}"),
         f"Growing {year + 1}": st.column_config.ProgressColumn(format="%.2f", min_value=0, max_value=1, width=125,
                                                               help=f"Model's chance the brand is growing at the end of {year + 1}. Growing is part of viable, so this is the smaller number"),
-        "Why this label": st.column_config.TextColumn(width=560, help="The three numbers behind the label, in words"),
+        "Sales vs category": st.column_config.NumberColumn(format="%.2f", width=110,
+                                                           help=f"The brand's sales change in {year} divided by its category's. 1.00 = moved with the category, "
+                                                                "1.20 = grew 20% faster than it, 0.85 = lost ground. Capped at 5.00 (the brand barely sold "
+                                                                "the year before). The category means its established brands: two full years of history, 250+ cases a year earlier"),
+        "Shelf vs category": st.column_config.NumberColumn(format="%.2f", width=110,
+                                                           help=f"The brand's store-count change in {year} divided by its category's. 1.00 = moved with the category, "
+                                                                "1.10 = held shelf 10% better than it, 0.85 = lost shelf faster. Same established-brand baseline"),
+        "Why this label": st.column_config.TextColumn(width=420, help="What the label means, then the number that decided it. "
+                                                                        "Shelf = share of stores carrying the brand. Full math on the How Labels Work page"),
     },
 )
 rows = picked_row.selection.rows if picked_row and picked_row.selection else []

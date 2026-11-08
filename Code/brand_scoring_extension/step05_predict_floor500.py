@@ -14,6 +14,8 @@ What the models are given (all as of the year we know):
     sales vs best, stores vs best, store trend      the three numbers behind the label
     store coverage now, brand size, brand age       new in this version
     sales growth vs the year before                 Dr. Sadler's whiteboard number
+    momentum (quarters in a row near its best)
+    category growth, brand vs its category          category context (Nov 2026, Eurpac's ask)
     current label, category, price tier
 
 Two models, two baselines:
@@ -60,7 +62,8 @@ PER_CATEGORY = 10
 INPUTS = ["sales_vs_best", "stores_vs_best", "store_trend",   # the three numbers behind the label
           "store_coverage", "brand_size", "brand_age",       # %ACV now, cases last year (logged), years in the data
           "sales_growth",                                    # cases this year / last year
-          "quarters_at_best"]                                # momentum: quarters in a row near its best
+          "quarters_at_best",                                # momentum: quarters in a row near its best
+          "category_growth", "vs_category"]                  # category context: how the category grew, and the brand vs it
 # Tried and set aside (near-zero importance): "price", "promo_share". Step 2 still computes them.
 
 
@@ -72,6 +75,8 @@ def prepare_inputs(labels, min_cases=MIN_CASES):
     lab["brand_age"] = lab["weeks_of_history"] / 52
     lab["store_trend"] = lab["store_trend"].fillna(1.0).clip(upper=5)      # no prior year = flat; cap wild ratios
     lab["sales_growth"] = lab["sales_growth"].fillna(1.0).clip(upper=5)
+    lab["category_growth"] = lab["category_growth"].fillna(1.0)
+    lab["vs_category"] = lab["vs_category"].fillna(1.0).clip(upper=5)     # no prior year = moved with the category
     lab[["sales_vs_best", "stores_vs_best"]] = lab[["sales_vs_best", "stores_vs_best"]].fillna(0)
     lab["price"] = np.log1p(lab["price"].fillna(lab["price"].median()))   # logged: $10 vs $20 matters more than $200 vs $210
     lab["promo_share"] = lab["promo_share"].fillna(0).clip(0, 1)
