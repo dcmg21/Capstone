@@ -15,13 +15,41 @@ SMU_NAVY, SMU_RED = "#28356A", "#CC0035"
 LABEL_COLORS = {"growing": "#16A34A", "stable": "#2563EB", "decline": "#D97706", "discontinued": "#9CA3AF"}
 LABEL_WORDS = {"growing": "Growing", "stable": "Stable", "decline": "Declining", "discontinued": "Discontinued"}
 
-DEFAULT_FLOOR = 250   # tested at this; the slider lets Eurpac move it
+DEFAULT_FLOOR = 500   # Eurpac's choice (models were tested at 250); the slider lets them move it
 FLOORS = [12, 52, 100, 250, 500, 1000, 2500, 5000]
 
 
 @st.cache_data(show_spinner=False)
 def load_predictions():
     return pd.read_parquet(DATA / "predictions.parquet")
+
+
+def with_category_context(p, floor):
+    """The predictions plus the category comparison at this floor (see category_context)."""
+    return p.merge(category_context(floor), on="brand", how="left")
+
+
+@st.cache_data(show_spinner=False)
+def category_context(floor):
+    """Is the brand beating its own category, not just growing? One row per brand, as percents:
+    case_growth          the brand's cases this year vs last year
+    category_growth      the category's cases this year vs last year, counting only extensions at or above
+                         the size floor (in either year, so brands that shrank below it still count against it)
+    vs_category          the gap between the two, in points (above 0 = beating its category)"""
+    labels = load_labels()
+    year = labels["as_of"].max()
+    now = labels.loc[labels["as_of"] == year, ["brand", "category", "cases_last_year"]]
+    prev = labels.loc[labels["as_of"] == year - 1].set_index("brand")["cases_last_year"]
+    ctx = now.assign(category=now["category"].astype(str), cases_prev=now["brand"].map(prev))
+    in_cat = (ctx["cases_last_year"] >= floor) | (ctx["cases_prev"] >= floor)
+    totals = ctx[in_cat].groupby("category")[["cases_last_year", "cases_prev"]].sum()
+    cat_growth = totals["cases_last_year"] / totals["cases_prev"].where(totals["cases_prev"] > 0) - 1
+    # Brands under 100 cases last year are left blank: +100,000% off a near-zero base is noise, not a signal
+    ctx["case_growth"] = ctx["cases_last_year"] / ctx["cases_prev"].where(ctx["cases_prev"] >= 100) - 1
+    ctx["category_growth"] = ctx["category"].map(cat_growth)
+    ctx["vs_category"] = ctx["case_growth"] - ctx["category_growth"]
+    ctx[["case_growth", "category_growth", "vs_category"]] = (ctx[["case_growth", "category_growth", "vs_category"]] * 100).round(1)
+    return ctx[["brand", "case_growth", "category_growth", "vs_category"]]
 
 
 @st.cache_data(show_spinner=False)
@@ -42,7 +70,8 @@ def sidebar_controls():
         st.markdown("## Settings")
         st.session_state["floor"] = st.select_slider(
             "Size floor: cases sold last year", options=FLOORS, value=st.session_state["floor"],
-            help="Brands below this are hidden on every page. The models were tested at 250. "
+            help="Brands below this are hidden on every page, and left out of the category growth they are "
+                 "compared against. Default 500; the models were tested at 250. "
                  "Eurpac can set this to whatever 'too small to care about' means to them.")
     return st.session_state["floor"]
 

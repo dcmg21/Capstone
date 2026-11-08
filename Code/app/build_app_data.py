@@ -1,9 +1,10 @@
 """
-Build the three files the app reads. Run this once, and again whenever new NIQ data arrives.
+Build the four files the app reads. Run this once, and again whenever new NIQ data arrives.
 
     data/predictions.parquet   one row per brand as of the newest year-end: label, reason, both chances
     data/labels.parquet        one row per brand per year-end (the trajectory view)
     data/weekly.parquet        cases and store coverage per brand per week (the charts)
+    data/suppliers.parquet     one row per brand: its supplier (NIQ's BRAND OWNER)
 
 Models are trained on brands with TRAIN_FLOOR+ cases (what step 5 tested). Scores are then
 produced for every brand down to SCORE_FLOOR cases, so the app's size slider has room to move.
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     t0 = time.time()
     DATA.mkdir(exist_ok=True)
 
-    sales = load_sales(columns=COLUMNS + ["period_date"])
+    sales = load_sales(columns=COLUMNS + ["period_date", "BRAND OWNER"])
     labels = label_all(sales)
 
     rows = build_rows(labels)                                     # training rows, TRAIN_FLOOR applied inside
@@ -72,13 +73,20 @@ if __name__ == "__main__":
     weekly["cases"] = weekly["cases"].clip(lower=0)
     weekly = full_week_grid(weekly)
 
+    # supplier = NIQ's BRAND OWNER; when an extension has more than one, the one with the most cases
+    owners = (sales.groupby([BRAND, "BRAND OWNER"], observed=True)["Case"].sum().reset_index()
+                   .sort_values("Case", ascending=False).drop_duplicates(BRAND))
+    suppliers = pd.DataFrame({"brand": owners[BRAND].astype(str), "supplier": owners["BRAND OWNER"].astype(str)})
+
     predictions.to_parquet(DATA / "predictions.parquet", index=False)
     labels.to_parquet(DATA / "labels.parquet", index=False)
     weekly.to_parquet(DATA / "weekly.parquet", index=False)
+    suppliers.to_parquet(DATA / "suppliers.parquet", index=False)
 
     scored = predictions["chance_growing_next_year"].notna().sum()
     print(f"predictions: {len(predictions):,} brands as of end of {year}, {scored:,} scored (>= {SCORE_FLOOR} cases)")
     print(f"             {flipped:,} had chance growing > chance viable; viable lifted to match")
     print(f"labels:      {len(labels):,} brand-years")
     print(f"weekly:      {len(weekly):,} brand-weeks")
-    print(f"Wrote 3 files to {DATA} in {time.time() - t0:.0f}s")
+    print(f"suppliers:   {suppliers['supplier'].nunique():,} suppliers")
+    print(f"Wrote 4 files to {DATA} in {time.time() - t0:.0f}s")
