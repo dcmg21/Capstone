@@ -14,6 +14,10 @@ EURPAC_GRAY, EURPAC_BLUE, EURPAC_RED = "#4A4D54", "#0060A9", "#CE1141"
 SMU_NAVY, SMU_RED = "#28356A", "#CC0035"
 LABEL_COLORS = {"growing": "#16A34A", "stable": "#2563EB", "decline": "#D97706", "discontinued": "#9CA3AF"}
 LABEL_WORDS = {"growing": "Growing", "stable": "Stable", "decline": "Declining", "discontinued": "Discontinued"}
+# what each label actually measures, in a few words: the labels are about shelf space more than sales
+LABEL_GLOSS = {"growing": "near its best and adding shelf", "stable": "holding its shelf",
+               "decline": "lost shelf space", "discontinued": "gone from shelves"}
+GLOSS_LINE = "; ".join(f"{LABEL_WORDS[k]} = {v}" for k, v in LABEL_GLOSS.items())
 
 DEFAULT_FLOOR = 500   # Eurpac's choice (models were tested at 250); the slider lets them move it
 FLOORS = [12, 52, 100, 250, 500, 1000, 2500, 5000]
@@ -22,34 +26,6 @@ FLOORS = [12, 52, 100, 250, 500, 1000, 2500, 5000]
 @st.cache_data(show_spinner=False)
 def load_predictions():
     return pd.read_parquet(DATA / "predictions.parquet")
-
-
-def with_category_context(p, floor):
-    """The predictions plus the category comparison at this floor (see category_context)."""
-    return p.merge(category_context(floor), on="brand", how="left")
-
-
-@st.cache_data(show_spinner=False)
-def category_context(floor):
-    """Is the brand beating its own category, not just growing? One row per brand, as percents:
-    case_growth          the brand's cases this year vs last year
-    category_growth      the category's cases this year vs last year, counting only extensions at or above
-                         the size floor (in either year, so brands that shrank below it still count against it)
-    vs_category          the gap between the two, in points (above 0 = beating its category)"""
-    labels = load_labels()
-    year = labels["as_of"].max()
-    now = labels.loc[labels["as_of"] == year, ["brand", "category", "cases_last_year"]]
-    prev = labels.loc[labels["as_of"] == year - 1].set_index("brand")["cases_last_year"]
-    ctx = now.assign(category=now["category"].astype(str), cases_prev=now["brand"].map(prev))
-    in_cat = (ctx["cases_last_year"] >= floor) | (ctx["cases_prev"] >= floor)
-    totals = ctx[in_cat].groupby("category")[["cases_last_year", "cases_prev"]].sum()
-    cat_growth = totals["cases_last_year"] / totals["cases_prev"].where(totals["cases_prev"] > 0) - 1
-    # Brands under 100 cases last year are left blank: +100,000% off a near-zero base is noise, not a signal
-    ctx["case_growth"] = ctx["cases_last_year"] / ctx["cases_prev"].where(ctx["cases_prev"] >= 100) - 1
-    ctx["category_growth"] = ctx["category"].map(cat_growth)
-    ctx["vs_category"] = ctx["case_growth"] - ctx["category_growth"]
-    ctx[["case_growth", "category_growth", "vs_category"]] = (ctx[["case_growth", "category_growth", "vs_category"]] * 100).round(1)
-    return ctx[["brand", "case_growth", "category_growth", "vs_category"]]
 
 
 @st.cache_data(show_spinner=False)
@@ -63,15 +39,14 @@ def load_weekly():
 
 
 def sidebar_controls():
-    """The size floor, at the top of the sidebar on every page. Remembered as you move around."""
+    """The size floor, at the top of the sidebar on Home and The List. Remembered as you move around."""
     st.session_state.setdefault("floor", DEFAULT_FLOOR)
     st.session_state.setdefault("watch", [])
     with st.sidebar:
         st.markdown("## Settings")
         st.session_state["floor"] = st.select_slider(
             "Size floor: cases sold last year", options=FLOORS, value=st.session_state["floor"],
-            help="Brands below this are hidden on every page, and left out of the category growth they are "
-                 "compared against. Default 500; the models were tested at 250. "
+            help="Brands below this are hidden from the Home numbers and The List (a brand's own page still opens). The models were tested at 250. "
                  "Eurpac can set this to whatever 'too small to care about' means to them.")
     return st.session_state["floor"]
 
@@ -122,9 +97,55 @@ def header(title):
     st.markdown('<hr class="hdr-rule">', unsafe_allow_html=True)
 
 
-def label_chip(label):
+TOL = 0.0005   # the stored numbers are rounded to 3 decimals; the rules ran on the exact ones, so allow for that at a boundary
+
+
+def decline_fired(r):
+    """For a Declining brand: (lost shelf this year?, lost most of its shelf ever?)."""
+    tr = 1.0 if pd.isna(r["store_trend"]) else r["store_trend"]
+    return tr < 0.90 + TOL, r["stores_vs_best"] < 0.40 + TOL
+
+
+def times(ratio):
+    """A this-year / last-year ratio as words: '+41%', '-22%', or '7.6x' for big jumps."""
+    if ratio is None or pd.isna(ratio):
+        return "n/a"
+    if ratio >= 3:
+        return f"{ratio:.1f}x" if ratio < 10 else f"{ratio:.0f}x"
+    return f"{ratio - 1:+.0%}"
+
+
+def shelf_change(tr):
+    """Store trend as words, for the reason lines."""
+    if pd.isna(tr):
+        return "no prior year"
+    return f"{times(tr)} vs a year ago"
+
+
+def short_reason(r):
+    """Which number decided the label, in a few words. r has sales_vs_best, stores_vs_best, store_trend, label."""
+    sb, st_, tr = r["sales_vs_best"], r["stores_vs_best"], r["store_trend"]
+    if r["label"] == "discontinued":
+        return f"sales {sb:.0%} of its best, shelf {st_:.0%} of its best"
+    if r["label"] == "growing":
+        return f"sales {sb:.0%} of its best, shelf {shelf_change(tr)}"
+    if r["label"] == "decline":
+        this_year, ever = decline_fired(r)
+        parts = ([f"shelf {shelf_change(tr)}"] if this_year else []) + ([f"shelf {st_:.0%} of its best"] if ever else [])
+        return ", ".join(parts) or f"shelf {shelf_change(tr)}"
+    return f"shelf {st_:.0%} of its best, {shelf_change(tr)}"
+
+
+def why_label(r):
+    """Gloss first, then the number that decided it: 'lost shelf space: shelf 20% of its best'."""
+    return f"{LABEL_GLOSS[r['label']]}: {short_reason(r)}"
+
+
+def label_chip(label, gloss=False):
+    """The colored label pill. gloss=True adds what it measures, e.g. 'Declining: losing shelf space'."""
+    text = LABEL_WORDS[label] + (f": {LABEL_GLOSS[label]}" if gloss else "")
     return (f'<span class="chip" style="background:{LABEL_COLORS[label]}22;color:{LABEL_COLORS[label]};'
-            f'border:1px solid {LABEL_COLORS[label]}66">{LABEL_WORDS[label]}</span>')
+            f'border:1px solid {LABEL_COLORS[label]}66">{text}</span>')
 
 
 CSS = f"""
@@ -143,6 +164,13 @@ CSS = f"""
   .big-label {{ font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6B7280; }}
   .card {{ background: #F3F4F6; border-radius: 12px; padding: 14px 18px; }}
   .reason {{ font-size: 15px; color: #374151; }}
+  table.score {{ border-collapse: collapse; margin: 10px 0 6px; font-size: 15px; width: 100%; max-width: 820px; }}
+  table.score th {{ text-align: center; font-weight: 600; color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding: 4px 14px 6px 0; border-bottom: 2px solid #E5E7EB; }}
+  table.score td {{ text-align: center; padding: 9px 14px 9px 0; border-bottom: 1px solid #F3F4F6; color: #1F2937; }}
+  table.score td.rowname {{ text-align: left; font-weight: 700; color: {EURPAC_GRAY}; }}
+  table.score th:first-child {{ text-align: left; }}
+  table.score .fired {{ font-weight: 700; padding: 2px 8px; border-radius: 6px; border: 2px solid {EURPAC_RED}; }}
+  table.score td.rowname span {{ display: block; font-weight: 400; font-size: 12px; color: #9CA3AF; }}
   section[data-testid="stSidebar"] {{ background: #F8FAFC; border-right: 1px solid #E5E7EB; }}
   section[data-testid="stSidebar"] h2 {{ color: {EURPAC_GRAY}; font-size: 16px; }}
   section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a span {{ font-size: 15px; }}

@@ -29,6 +29,8 @@ from step06_predict_next_year import fit_models, score_latest  # noqa: E402
 
 TRAIN_FLOOR = MIN_CASES   # 250: the floor the models were validated at
 SCORE_FLOOR = 12          # score everything down to one case a month; the app slider decides what to show
+GAP_WEEKS = 26            # half a year effectively unsold (under GAP_CASES a week), after first appearing, marks it "comes and goes"
+GAP_CASES = 1.0           # a bottle here and there in one store still counts as gone
 DATA = HERE / "data"
 
 
@@ -48,6 +50,20 @@ def full_week_grid(weekly):
     out[["cases", "store_coverage"]] = out[["cases", "store_coverage"]].fillna(0)
     return out[["brand", "week", "period_date", "cases", "store_coverage"]]
 
+
+def comes_and_goes(weekly, gap=GAP_WEEKS, floor=GAP_CASES):
+    """True for brands with a run of `gap`+ weeks selling under `floor` cases a week, somewhere after they first
+    sold properly: seasonal items, limited runs, relaunches. Their 'vs best' and 'vs a year ago' numbers measure a calendar."""
+    piv = weekly.pivot_table(index="brand", columns="week", values="cases").reindex(columns=range(1, weekly["week"].max() + 1))
+    sold = (piv.fillna(0) >= floor).to_numpy()
+    seen = np.cumsum(sold, axis=1) > 0                      # True from the first real week of sales onward
+    quiet = seen & ~sold                                    # a week after launch with next to nothing sold
+    longest = np.zeros(len(piv), dtype=int)
+    run = np.zeros(len(piv), dtype=int)
+    for j in range(quiet.shape[1]):
+        run = np.where(quiet[:, j], run + 1, 0)
+        longest = np.maximum(longest, run)
+    return pd.Series(longest >= gap, index=piv.index, name="comes_and_goes")
 
 if __name__ == "__main__":
     t0 = time.time()
@@ -71,6 +87,8 @@ if __name__ == "__main__":
                    .rename(columns={BRAND: "brand"}))
     weekly["brand"] = weekly["brand"].astype(str)
     weekly["cases"] = weekly["cases"].clip(lower=0)
+    flag = comes_and_goes(weekly)                                 # on NIQ's reported weeks, before the zero-filled grid
+    predictions["comes_and_goes"] = predictions["brand"].map(flag).fillna(False).astype(bool)
     weekly = full_week_grid(weekly)
 
     # supplier = NIQ's BRAND OWNER; when an extension has more than one, the one with the most cases
@@ -87,6 +105,7 @@ if __name__ == "__main__":
     print(f"predictions: {len(predictions):,} brands as of end of {year}, {scored:,} scored (>= {SCORE_FLOOR} cases)")
     print(f"             {flipped:,} had chance growing > chance viable; viable lifted to match")
     print(f"labels:      {len(labels):,} brand-years")
+    print(f"comes and goes: {int(predictions['comes_and_goes'].sum()):,} brands with a {GAP_WEEKS}+ week stretch of no sales")
     print(f"weekly:      {len(weekly):,} brand-weeks")
     print(f"suppliers:   {suppliers['supplier'].nunique():,} suppliers")
     print(f"Wrote 4 files to {DATA} in {time.time() - t0:.0f}s")

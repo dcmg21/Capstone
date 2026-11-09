@@ -18,21 +18,22 @@ After that, just `streamlit run app.py`. Re-run `build_app_data.py` when new NIQ
 | Page | What it does |
 |---|---|
 | Home | The numbers at a glance (they follow the floor) and where to go |
-| The List | Every scored brand above the floor, ranked. Filters: category, price tier, label today, years of data, minimum chance viable, minimum chance growing, search. Rank by growing, viable, size or how far the brand is beating its category (cases vs last year, minus the category's change). Filters are remembered when you switch pages. Click a row to open the brand. Pin the top N to the watchlist. Top 10 per category. Excel download |
-| One Brand | Weekly chart (cases and store coverage, 13-week average: the view the labels are read from) with whether the brand is beating its category this year, the label at each year-end and why (hover a year-end dot, or read the list under the chart); optional category-average overlay; other lines in the same family; the three yes/no questions and today's three numbers in a collapsed box; pin to watchlist |
+| The List | Every scored brand above the floor, ranked. Filters: category, price tier, label today, years of data, minimum chance viable, minimum chance growing, search. Rank by growing, viable, size or how far the brand is beating its category (Sales vs category: the brand's cases this year / last year, divided by its category's; 1.00 = keeping pace). Filters are remembered when you switch pages. Click a row to open the brand. Pin the top N to the watchlist. Top 10 per category. Excel download |
+| One Brand | Weekly chart (cases and store coverage, 13-week average: the view the labels are read from) under a sales-and-shelf scorecard (vs its own best, vs a year ago, vs its category), the label at each year-end and why (hover a year-end dot, or read the list under the chart); a step-through of any year's label; optional category-average overlay; other lines in the same family; pin to watchlist |
+| How Labels Work | What is measured, the three yes/no questions, worked examples, and the category comparison |
 | The Model | The two questions (viable, growing) and how to read a chance; how the predictions held up on 2025 (a year the models never saw); the five approaches; what the models lean on; strength by category; the size floor |
 
 Every page has a collapsed "What am I looking at?" box at the top, and hover help on columns and numbers.
 
 **Sidebar:** the size floor on Home and The List (default 500, remembered as you move between pages; it hides
-small brands everywhere and sets which extensions count toward the category growth a brand is compared against; it does not retrain anything) and the watchlist on every page (pin from the List or Brand page, download as text).
+small brands from the Home numbers and The List; it does not change the category comparison, which is fixed in step 2, and it does not retrain anything) and the watchlist on every page (pin from the List or Brand page, download as text).
 
-**The chances are calibrated** (step 6, D23): 0.65 means about 65 in 100 brands like this one. Growing is part of viable, so viable is the bigger number.
+**The chances are calibrated** (step 6, D23): 0.65 means about 65 in 100 brands like this one. Growing is part of viable, so viable is never the smaller number: the two models are fit separately, and where growing comes out higher, build_app_data.py lifts viable to match.
 
 ## Files
 
-    app.py                 home
-    pages/                 the three pages
+    app.py                 the router: sets up the four pages
+    views/                 home.py, list.py, brand.py, model.py
     common.py              data loading, colors, header, shared CSS
     build_app_data.py      runs pipeline steps 1, 2, 6 and writes data/
     data/                  predictions.parquet, labels.parquet, weekly.parquet (NIQ data: do not share outside the team and Eurpac)
