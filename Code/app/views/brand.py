@@ -162,7 +162,7 @@ fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["cases"].rolling(13).mean(), 
 fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["store_coverage"], name="shelf, each week", hoverinfo="skip",
                          line=dict(color="#86EFAC", width=1), opacity=0.7), row=2, col=1)
 fig.add_trace(go.Scatter(x=wk["period_date"], y=wk["store_coverage"].rolling(13).mean(), name="shelf, 13-week average",
-                         hovertemplate="%{x|%b %d, %Y}<br>in %{y:.0%} of stores (13-week average)<extra></extra>",
+                         hovertemplate="%{x|%b %d, %Y}<br>%ACV %{y:.0f} (13-week average)<extra></extra>",
                          line=dict(color="#15803D", width=2.5)), row=2, col=1)
 if overlay:
     cat_brands = p.loc[p["category"].astype(str) == cat, "brand"]

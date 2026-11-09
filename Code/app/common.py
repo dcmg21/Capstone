@@ -19,7 +19,7 @@ LABEL_GLOSS = {"growing": "near its best and adding shelf", "stable": "holding i
                "decline": "lost shelf space", "discontinued": "gone from shelves"}
 GLOSS_LINE = "; ".join(f"{LABEL_WORDS[k]} = {v}" for k, v in LABEL_GLOSS.items())
 
-DEFAULT_FLOOR = 250   # tested at this; the slider lets Eurpac move it
+DEFAULT_FLOOR = 500   # Eurpac's choice (models were tested at 250); the slider lets them move it
 FLOORS = [12, 52, 100, 250, 500, 1000, 2500, 5000]
 
 

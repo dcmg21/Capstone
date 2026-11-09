@@ -32,6 +32,7 @@ Kristin, Eurpac, the spring cohort) can see the reasoning without asking us.
 | D24 | 2026-11-08 | Category context: two new inputs (category_growth, vs_category), measured over the established field (250+ cases a year ago). Labels unchanged | Active |
 | D25 | 2026-11-08 | "Declining" with sales up: fix the word, not the rule. Label gloss in the app; a sales guard was tested and parked for Devin | Active |
 | D26 | 2026-11-08 | Brand page reorganized around a sales-and-shelf scorecard (vs own best, vs a year ago, vs category). Category shelf trend added to step 2 as context only | Active |
+| D27 | 2026-11-09 | Merge of devin and main: category context is D24 only (ratio, fixed 250+ field). App-side difference version removed; sidebar floor (default 500) only controls what is displayed | Active |
 
 ---
 
@@ -730,6 +731,21 @@ trend splits next-year outcomes at least as well as the category-relative versio
 whiskey, cognac about -10%, vodka and gin -7 to -8%, tequila -5%, cordials -4%, non-alcoholic flat.
 A brand holding its store count in 2025 was beating its field. The models were tested in this same
 market, so the chances already reflect it.
+
+---
+
+## D27. One definition of category context (merge of devin and main)
+
+**Decision:** category context follows D24: computed in step 2 (`category_context`), with the
+comparison group fixed at brands with two full years of history and CATEGORY_FLOOR (250)+ cases a
+year ago. `vs_category` is a ratio, brand / category, where 1.00 = keeping pace.
+
+**Removed:** the app-side version from bbe847c (`with_category_context` / `category_context(floor)` in
+`app/common.py`), which measured the gap in percentage points and let the sidebar floor decide which
+brands made up the category. Two definitions of the same number would have disagreed on screen.
+
+**The sidebar floor** (default 500) now only controls what is displayed: it hides small brands from the
+Home numbers and The List. It does not change the category comparison, the labels or the models.
 
 ---
 

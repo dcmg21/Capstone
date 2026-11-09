@@ -21,12 +21,14 @@ One row per brand that sold at least **{floor} cases** in {year} (the size floor
 
 - **Label today**: what the brand is at the end of {year}, by the same rules a human used. The labels are about shelf space more than sales: {GLOSS_LINE}.
 - **Viable {year + 1}** and **Growing {year + 1}**: the model's chance, 0 to 1, that the brand will still be viable / be growing a year from now.
-  Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable should be the bigger number (two separate models, so a rare one- or two-point disagreement can happen).
+  Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable is never the smaller number (two separate models; where growing comes out higher, viable is lifted to match).
 - **Comes and goes** (filter): brands with half a year or more of no sales somewhere in their history, usually seasonal items, limited runs or relaunches. Their numbers measure a calendar, not a trend; the checkbox hides them.
 - **Years of data**: how long the brand has been in the data. A brand with two years can look "at its best" just because there is little history behind it; the filter on the left lets you require more.
 - **Sales vs category** and **Shelf vs category**: the brand's change over the year divided by its category's change (established brands only). 1.00 = moved with the category, 1.20 = did 20% better, 0.85 = lost ground. Added at Eurpac's request; the models see the sales one.
 - **Why this label**: what the label means and the one number that decided it, e.g. "lost shelf space: shelf 20% of its best". Sales vs best = cases last quarter as a share of the brand's best quarter ever.
   Stores vs best = store coverage now as a share of the most it ever had. Store count = coverage this year vs last year.
+- **Rank by "beating its category"** sorts on Sales vs category, highest first. The size floor only hides brands; it does
+  not change the category a brand is compared with.
 
 Filter on the left, sort with "Rank by," click a row to open that brand, pin brands to the watchlist, or download the list.
 """)
@@ -34,7 +36,7 @@ Filter on the left, sort with "Rank by," click a row to open that brand, pin bra
 # ---- filters -----------------------------------------------------------------
 # Streamlit forgets a page's widgets when you leave the page. Each filter starts from the value
 # saved in session_state and saves itself back, so the filters survive a trip to another page.
-RANKS = ["chance of growing", "chance of viable", "cases last year"]
+RANKS = ["chance of growing", "chance of viable", "cases last year", "beating its category"]
 f = st.session_state.setdefault("list_filters", dict(
     cats=[], tiers=[], labels=[], min_years=1, min_grow=0.0, min_viab=0.0, search="", sort_by=RANKS[0], top_n=10,
     hide_gaps=False))
@@ -85,8 +87,8 @@ if search:
     view = view[view["brand"].str.upper().str.contains(s, regex=False)
                 | view["family"].astype(str).str.upper().str.contains(s, regex=False)]
 sort_col = {"chance of growing": "chance_growing_next_year", "chance of viable": "chance_viable_next_year",
-            "cases last year": "cases_last_year"}[sort_by]
-view = view.sort_values(sort_col, ascending=False).reset_index(drop=True)
+            "cases last year": "cases_last_year", "beating its category": "vs_category"}[sort_by]
+view = view.sort_values(sort_col, ascending=False, na_position="last").reset_index(drop=True)
 
 # ---- the table ---------------------------------------------------------------
 a, c = st.columns([4, 1])
