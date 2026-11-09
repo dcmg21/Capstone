@@ -128,8 +128,11 @@ def apply_rules(f, dead, near_peak, grow_yoy, decline_yoy, decline_peak):
     pct = lambda s: (100 * s).round().astype("Int64").astype(str) + "%"
     chg = (100 * (yoy - 1)).round().astype("Int64")
     trend = np.where(chg >= 0, "up " + chg.astype(str) + "%", "down " + (-chg).astype(str) + "%")
+    trend = np.where(yoy >= 10, "up from almost none", trend)     # +5000% says nothing a reader can use
     reason = ("selling at " + pct(f["sales_vs_best"]) + " of its best; in " + pct(f["stores_vs_best"])
               + " of the stores it once had; store count " + trend + " vs last year")
+    no_best = f["sales_vs_best"].isna() | f["stores_vs_best"].isna()   # never sold: no best to compare against
+    reason = reason.where(~no_best, "no sales or store coverage on record")
     return label, reason
 
 
