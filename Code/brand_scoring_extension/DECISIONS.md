@@ -29,6 +29,10 @@ Kristin, Eurpac, the spring cohort) can see the reasoning without asking us.
 | D21 | 2026-10-19 | Eurpac call: extensions confirmed, survival over growth, ROI deferred, 9L case confirmed | Active |
 | D22 | 2026-10-29 | Size floor stays a fixed case count (percentile does not work), 250 default, adjustable in the app. App v1 built: Brand Radar | Active |
 | D23 | 2026-11-02 | Step 6 chances are calibrated (sigmoid, 5-fold). Ordering unchanged, so step 5 numbers stand. No clamp on viable vs growing | Active |
+| D24 | 2026-11-08 | Category context: two new inputs (category_growth, vs_category), measured over the established field (250+ cases a year ago). Labels unchanged | Active |
+| D25 | 2026-11-08 | "Declining" with sales up: fix the word, not the rule. Label gloss in the app; a sales guard was tested and parked for Devin | Active |
+| D26 | 2026-11-08 | Brand page reorganized around a sales-and-shelf scorecard (vs own best, vs a year ago, vs category). Category shelf trend added to step 2 as context only | Active |
+| D27 | 2026-11-09 | Merge of devin and main: category context is D24 only (ratio, fixed 250+ field). App-side difference version removed; sidebar floor (default 500) only controls what is displayed | Active |
 
 ---
 
@@ -624,6 +628,124 @@ want to see where they disagree, not hide it. Step 6 prints the count; it should
 
 **Effect:** "0.65" now means about 65 in 100, which is what the app's tooltips say. Rerun
 `app\build_app_data.py` to refresh the app data. Step 5 does not need calibration (it only ranks).
+
+---
+
+## D24. Category context: the brand against its category, as a model input
+
+**Why:** On the Nov 2 call Jacob asked for category context "as a fourth ratio in the probability."
+Scott's example: RTDs up 16% while bourbon is down 5%, so the same 10% growth means very
+different things in the two categories. Devin added: compare against the field, not the losers.
+
+**What we built (step 2, `category_context`):** two numbers per brand per year-end.
+- `category_growth`: the category's cases this year / last year, summed over the **established
+  field**: brands with two full years of history that already sold at least 250 cases a year ago
+  (`CATEGORY_FLOOR`). Two full years so the category's growth is on the same footing as the brand's
+  `sales_growth` (a review on Nov 8 caught that mid-year launches were counting a partial prior year). That keeps
+  out new launches (which would make every existing brand look like it is losing ground) and tiny
+  brands (which would swamp the count).
+- `vs_category`: the brand's `sales_growth` / its `category_growth`. 1.00 = moved with the
+  category, 1.20 = grew 20% faster, 0.85 = lost ground.
+
+**What we did not do:** change the labels. The rules match Kristin's hand labels and stay as they
+are. The two numbers are extra inputs in step 5's `INPUTS` (filled with 1.0 when there is no prior
+year, capped at 5 like `sales_growth`). Step 5 says whether they help; step 6 carries them into the
+app, where they show on the Brand page and as a "Vs category" column on the List.
+
+**Result (Nov 8, real data):** viable top-100 unchanged at 98 (logistic) / 95 (boosting); growing 51 / 66
+(was 65). Boosting importance for both new inputs is about 0.00, bottom of the list. The logistic
+coefficients look large but `vs_category` is `sales_growth / category_growth`, so the two columns carry
+nearly the same information and the weight is split between them; the boosting number is the one to
+read. Conclusion: a brand's own trajectory already carries the category signal in this data, where
+category growth only ranges 0.93 (cognac) to 1.10 (prepared cocktails). Kept as context for the reader
+and as a model input (harmless), not as a driver.
+
+**500-case floor (same day, `step05_predict_floor500.py`):** viable 98 / 93, growing 49 / 60, per-category
+growing worse (brandy 1 of 10). Pools differ (5,808 vs 4,431 test brands) so not perfectly matched, but
+the direction is clear: 500 is not better. 250 stays (closes the "what if 500" question from Oct 19 and Nov 2).
+
+**To run:** step 2, then step 5 for the test numbers and importance, then `app\build_app_data.py`.
+
+---
+
+## D25. "Declining" while sales are up: fix the word, not the rule
+
+**The question (Drew, Nov 8):** Chum Churum Soon Hari Peach is labeled declining at the end of 2025
+with sales at 99% of its best and up 16% on the year. Store trend 0.898 (just under 0.90) fired the
+"slipping off shelves" rule. Is the rule wrong? Should stores come out?
+
+**Stores stay.** Stores vs best is the strongest predictor of survival by far (boosting importance
+0.24 vs 0.01 for sales vs best), Kristin's hand labels are mostly about distribution, and the paper's
+main finding is "survival is about stores." Removing stores would break all three.
+
+**How common:** 61 of 2,513 declining labels at end of 2025 over 250 cases (2.4%); 806 of 31,134
+across all years (2.6%). About 1% of the brands on the list.
+
+**Evidence gathered on a sales guard** ("not declining if sales >= 80% of best and up on the year;
+call it stable"):
+- Flipped brands a year later: 52% viable, 18% growing. Stable brands: 54% viable, 7% growing.
+  Declining brands overall: 26% viable, 3% growing. So the flipped brands behave like stable brands.
+- Robust to the cutoff: every variant tried (70/80/90% of best; growth > 0/5/10%) gives 48 to 56% viable.
+- Kristin's 112: no brand affected; agreement stays 90.3% tier, 95.6% viable.
+- Step 5 test rerun with the guard: viable 98 / 95 unchanged; growing 50 / 64 vs 50 / 67 (noise);
+  "nothing changes" baseline 84 -> 87 (labels more persistent). Neutral for the model.
+- G4 Reposado 2023 would flip declining -> stable (sales 90% of best, +36%, stores -36%).
+- Mirror case noted, not acted on: stable brands with sales under 60% of best are 41% viable a year
+  later vs 61% for other stable brands. The model sees sales vs best, so no second exception.
+
+**Decision:** keep the three questions exactly as they are (they are Devin's, they match Kristin, and
+Draft 2 describes them). Fix the word instead: the app now shows what each label measures next to it
+(`LABEL_GLOSS` in `app/common.py`): Discontinued = gone from shelves, Declining = losing shelf space,
+Stable = holding its shelf, Growing = near its best and adding shelf. The Brand page also gained a
+collapsed "step through a year's label" box that recomputes every number from the weekly rows and
+explains the sales-up-but-declining case when it occurs.
+
+**Parked for Devin:** the guard is defensible and cheap (one clause in `apply_rules`, one line in the
+reason text, step 3 reproof). Adopt only if Devin agrees, since it changes the published rules.
+
+---
+
+## D26. The Brand page is a sales-and-shelf scorecard
+
+**Why:** after D24 and D25 the Brand page asked the reader to assemble the story from a chip, a
+sentence, two chart panels, a scaled overlay and a prose hover. Drew: "getting way too confusing."
+
+**The idea:** everything about a brand is sales or shelf, measured three ways: against its own best,
+against a year ago, against its category. So the page opens with a two-row table:
+
+| | vs its own best | vs a year ago | vs cordials |
+|---|---|---|---|
+| Sales | 99% | +41% | cordials -5%, ahead |
+| Shelf | 80% | -22% | cordials -4%, behind |
+
+followed by the label with its gloss and the number that fired it. The label visibly comes from the
+shelf row. The year-end hover is the same four lines for that year. Chart panels renamed "Sales: cases
+per week" and "Shelf: % of stores carrying it." The scaled overlay stays, off by default.
+
+**Step 2 addition:** `category_shelf_trend` (the established field's mean %ACV this year / last year)
+and `vs_shelf` (brand's store_trend / that), built exactly like D24's sales version. Context only, not
+a model input: tested on Nov 8, importance 0.003 / 0.000, growing top-100 67 -> 65 (noise). Raw store
+trend splits next-year outcomes at least as well as the category-relative version.
+
+**Finding worth telling Eurpac:** in 2025 every category's established brands lost shelf: brandy,
+whiskey, cognac about -10%, vodka and gin -7 to -8%, tequila -5%, cordials -4%, non-alcoholic flat.
+A brand holding its store count in 2025 was beating its field. The models were tested in this same
+market, so the chances already reflect it.
+
+---
+
+## D27. One definition of category context (merge of devin and main)
+
+**Decision:** category context follows D24: computed in step 2 (`category_context`), with the
+comparison group fixed at brands with two full years of history and CATEGORY_FLOOR (250)+ cases a
+year ago. `vs_category` is a ratio, brand / category, where 1.00 = keeping pace.
+
+**Removed:** the app-side version from bbe847c (`with_category_context` / `category_context(floor)` in
+`app/common.py`), which measured the gap in percentage points and let the sidebar floor decide which
+brands made up the category. Two definitions of the same number would have disagreed on screen.
+
+**The sidebar floor** (default 500) now only controls what is displayed: it hides small brands from the
+Home numbers and The List. It does not change the category comparison, the labels or the models.
 
 ---
 

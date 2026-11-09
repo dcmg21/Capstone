@@ -74,7 +74,9 @@ def score_latest(labels, viable_model, growing_model, columns, min_cases=MIN_CAS
                                   .rank(ascending=False, method="min").astype("Int64"))
     out["years_of_data"] = (out["weeks_of_history"] / 52).round(1)
     cols = ["brand", "family", "category", "price_tier", "cases_last_year", "years_of_data", "label", "viable", "reason",
-            "chance_viable_next_year", "chance_growing_next_year", "rank_overall", "rank_in_category"]
+            "category_growth", "vs_category", "category_shelf_trend", "vs_shelf",
+            "chance_viable_next_year", "chance_growing_next_year",
+            "rank_overall", "rank_in_category"]
     return out[cols].sort_values("rank_overall"), latest_year
 
 

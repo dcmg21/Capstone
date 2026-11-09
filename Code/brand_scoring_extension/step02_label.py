@@ -20,8 +20,20 @@ Binary, Kristin's own mapping:  viable = 1 (stable, growing)   low_performance =
 "As of" a year-end: the data is cut at that week and the rules run on what existed then.
 So each brand gets a label for the end of 2022, 2023, 2024 and 2025 (week 260).
 
+Category context (added Nov 2026 at Eurpac's request), two more numbers per brand. They do not
+change the label; they are extra inputs for the prediction in step 5:
+
+    category_growth  the category's cases this year / last year, counted over the established field:
+                     brands with two full years of history that sold at least CATEGORY_FLOOR cases a year
+                     ago. So a brand is compared with real competitors, not with new launches or dying
+                     10-case brands, and the category's growth is on the same footing as the brand's
+    vs_category      the brand's sales_growth / its category_growth.
+                     1.00 = moved with its category, 1.20 = grew 20% faster than it, 0.85 = lost ground
+    category_shelf_trend  the same idea for shelf: the field's store coverage this year / last year
+    vs_shelf         the brand's store_trend / its category_shelf_trend
+
 Run the whole file. You get `labels`: one row per brand per year-end, with the label,
-the 1/0, the three numbers, and a `reason` column that explains the label.
+the 1/0, the three numbers, the two category numbers, and a `reason` column that explains the label.
 """
 
 import sys
@@ -38,6 +50,7 @@ COLUMNS = [BRAND, "ALC BRAND FAMILY", "ALC CATEGORY", "ALC SPIRITS PRICE TIER", 
 MA = 13            # weeks in the moving average Kristin plotted
 YEAR = 52
 MIN_WEEKS = 52     # need a year of history to be labeled (her filter)
+CATEGORY_FLOOR = 250   # a category's growth is measured over brands that were this size a year ago (step 5's floor)
 YEAR_ENDS = {2022: 104, 2023: 156, 2024: 208, 2025: 260}   # last week of each 52-week year (data starts Jan 2021)
 
 
@@ -90,8 +103,12 @@ def features(tables, end_week):
         return (pts >= 0.8 * best).cumprod(axis=1).sum(axis=1)             # count until the first miss
 
     last_year = lambda w: w.iloc[:, -YEAR:].sum(axis=1)
+    prior_year = lambda w: w.iloc[:, -2 * YEAR:-YEAR].sum(axis=1)
     f = pd.DataFrame({"weeks_of_history": c.notna().sum(axis=1),       # weeks since the brand first appeared
                       "cases_last_year": last_year(c),                   # brand size
+                      "cases_prior_year": prior_year(c),                 # the year before, for the category's growth
+                      "acv_this_year": a.iloc[:, -YEAR:].mean(axis=1),    # mean %ACV this year and last, for the category's shelf trend
+                      "acv_prior_year": a.iloc[:, -2 * YEAR:-YEAR].mean(axis=1),
                       "store_coverage": a.iloc[:, -MA:].mean(axis=1),    # %ACV right now
                       "sales_vs_best": vs_peak(c), "stores_vs_best": vs_peak(a),
                       "store_trend": yoy(a), "sales_growth": yoy(c),     # this year / last year
@@ -119,6 +136,22 @@ def apply_rules(f, dead, near_peak, grow_yoy, decline_yoy, decline_peak):
     return label, reason
 
 
+def category_context(f, floor=CATEGORY_FLOOR):
+    """Two numbers per brand: how its category grew this year, and the brand's growth relative to that.
+    The category's growth is summed over the established field: brands with two full years of history
+    that already sold at least `floor` cases a year ago. (Two full years so a brand that launched mid-way
+    through the prior year does not count a partial year as if it were a whole one.)"""
+    big = f[(f["cases_prior_year"] >= floor) & (f["weeks_of_history"] >= 2 * YEAR)]
+    by_cat = big.groupby("category", observed=True)[["cases_last_year", "cases_prior_year", "acv_this_year", "acv_prior_year"]].sum()
+    growth = by_cat["cases_last_year"] / by_cat["cases_prior_year"].replace(0, np.nan)
+    shelf = by_cat["acv_this_year"] / by_cat["acv_prior_year"].replace(0, np.nan)
+    f["category_growth"] = f["category"].map(growth).astype(float)
+    f["vs_category"] = f["sales_growth"] / f["category_growth"]
+    f["category_shelf_trend"] = f["category"].map(shelf).astype(float)
+    f["vs_shelf"] = f["store_trend"] / f["category_shelf_trend"]
+    return f
+
+
 def label_all(sales, rules=RULES, year_ends=None):
     year_ends = year_ends or year_ends_in(sales)
     tables = weekly_tables(sales)
@@ -134,11 +167,14 @@ def label_all(sales, rules=RULES, year_ends=None):
         parts.append(f)
     out = pd.concat(parts).rename_axis("brand").reset_index()
     out = out.merge(info, left_on="brand", right_index=True, how="left")
+    out = pd.concat([category_context(g) for _, g in out.groupby("as_of")])   # category growth is per year
     cols = ["brand", "family", "category", "price_tier", "as_of", "label", "viable", "reason",
             "weeks_of_history", "cases_last_year", "store_coverage", "sales_vs_best", "stores_vs_best",
-            "store_trend", "sales_growth", "price", "promo_share", "quarters_at_best"]
+            "store_trend", "sales_growth", "category_growth", "vs_category", "category_shelf_trend", "vs_shelf",
+            "price", "promo_share", "quarters_at_best"]
     return out[cols].round({"cases_last_year": 0, "store_coverage": 2, "sales_vs_best": 3, "stores_vs_best": 3,
-                            "store_trend": 3, "sales_growth": 3, "price": 2, "promo_share": 3})
+                            "store_trend": 3, "sales_growth": 3, "category_growth": 3, "vs_category": 3,
+                            "category_shelf_trend": 3, "vs_shelf": 3, "price": 2, "promo_share": 3})
 
 
 if __name__ == "__main__":

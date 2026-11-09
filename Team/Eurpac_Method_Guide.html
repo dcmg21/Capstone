@@ -238,7 +238,7 @@
         <li><b>Will the brand still be viable next year?</b> (stable or growing, Kristin's 1)</li>
         <li><b>Will the brand be growing next year?</b> (the investment question)</li>
       </ul>
-      The model sees eleven facts about each brand: the three numbers behind the label, store coverage, size, age, last year's sales growth, momentum (how many of the last 8 quarters in a row, counting back from now, sales were at 80% or more of the best the brand had reached up to then; 8 = held its level for two years, 0 = fell off recently), its current label, its category and its price tier.
+      The model sees thirteen facts about each brand: the three numbers behind the label, store coverage, size, age, last year's sales growth, momentum (how many of the last 8 quarters in a row, counting back from now, sales were at 80% or more of the best the brand had reached up to then; 8 = held its level for two years, 0 = fell off recently), two category-context numbers added in November at Eurpac's request (how the category grew, and the brand's growth against it), its current label, its category and its price tier.
       We try two models, a simple one (logistic regression) and a more flexible one (gradient boosting), and compare both to the simplest possible rule, "assume nothing changes," and to the starting idea, "last year's growth alone."
     </div></div>
     <div class="row"><div class="k">How we score it</div><div>
@@ -250,7 +250,7 @@
         <li><b>Random picking.</b> Close your eyes and point at 100 brands. This is the floor; anything that can't beat it is useless.</li>
         <li><b>"Nothing changes."</b> Someone who says "whatever a brand is today, it will be the same next year," and picks 100 brands that are healthy today. Lazy but smart, and hard to beat.</li>
         <li><b>"Last year's growth alone."</b> Someone who looks at one number only, did sales go up last year, and picks the 100 with the best growth. This was the original starting idea.</li>
-        <li><b>Simple model.</b> Logistic regression. Looks at eleven facts about each brand and weighs them.</li>
+        <li><b>Simple model.</b> Logistic regression. Looks at thirteen facts about each brand and weighs them.</li>
         <li><b>Boosted model.</b> Gradient boosting. More flexible; it can learn things like "small brands behave differently from big ones."</li>
       </ul>
       We show all five because "96 right" means nothing without "compared to what." A model is only worth having if it beats the person who assumes nothing changes.
