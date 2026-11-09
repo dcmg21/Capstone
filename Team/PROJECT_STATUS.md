@@ -31,7 +31,7 @@ The pipeline is built and tested end to end, in six steps:
 | 2 Label | Rules copy Kristin's chart-reading; every brand labeled discontinued / decline / stable / growing at each year-end, plus viable (1/0) and a reason | Fully automatic |
 | 3 Check vs Kristin | Her 112 hand-labeled vodka brands vs ours | 90% agree on tier, 95% on viable/not (her model: 84%) |
 | 4 Check across categories | Label mix by category; July vs January seasonality test | Same mix everywhere; no seasonal bias |
-| 5 Predict | Viable next year? Growing next year? Two baselines, logistic regression, gradient boosting, tested on 2025 (never seen) | Viable: 98 of top 100 (random 43, "nothing changes" 84). Growing: 65 of top 100 (random 8, "growing now" 53) |
+| 5 Predict | Viable next year? Growing next year? Two baselines, logistic regression, gradient boosting, tested on 2025 (never seen) | Viable: 98 of top 100 (random 43, "stays the same" 84). Growing: 65 of top 100 (random 8, "growing now" 53) |
 | 6 Predict for real | Score every brand as of end of 2025, looking at 2026. Chances calibrated (D23) so 0.65 means about 65 in 100 | `predictions` table, ranked by chance of growing |
 
 Key findings: survival is driven by store coverage vs the brand's best; growth by sales vs best plus momentum (quarters in a row near its best). Last year's sales growth alone predicts neither. Rules and models are category-free by construction (every brand judged against its own history).
@@ -86,7 +86,7 @@ After the Nov 2 demo (Eurpac loved it). Jacob: upload/retrain plus category cont
 - [ ] Compare our scores against Kristin's opportunity score (Devin's commitment). Needs her un-anonymized scored file: ask her again.
 - [ ] Settle with Devin what "validate beyond vodka" means: step 4's cross-category checks (current position) or hand-labeling whiskey (we decided against).
 - [ ] **Draft 3: fix the front of the paper.** Draft 2's sections 3 to 5 describe the current pipeline correctly, but the abstract and introduction still describe the old 40% growth-threshold label, and the lit review has the Draft 1 typos back (duplicate 2.4 heading, "chose sale-growth", "ration"). Rewrite abstract and intro around: rules reproduce the expert's labels, then predict a year ahead.
-- [x] **App v1 built: `Code/app/` ("Brand Radar", Streamlit, local).** Home, List (floor slider default 250, filters, search, sort, top 10 per category, Excel export), Brand (chart, year-end labels, three numbers, both chances), Model (results in plain words). Run: `python app/build_app_data.py` once, then `streamlit run app.py`.
+- [x] **App v1 built: `Code/app/` ("Brand Radar", Streamlit, local).** Home, List (floor slider, default 500 since Nov 9, models tested at 250; filters, search, sort, top 10 per category, Excel export), Brand (chart, year-end labels, three numbers, both chances), Model (results in plain words). Run: `python app/build_app_data.py` once, then `streamlit run app.py`.
 - [ ] App: Drew runs it on real data and reviews; get the SMU logo file into `app/assets/smu_logo.png`; pick a final name.
 - [ ] App v2: market page, backtest explorer, score history. v3: upload and retrain with guardrails.
 - [ ] Ask Jacob about hosting: internal Eurpac machine or their own cloud account.

@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from common import GLOSS_LINE, current_floor, footer, header, label_chip, load_labels, sidebar_watchlist, times
+from common import GLOSS_LINE, LABEL_WORDS, current_floor, footer, header, label_chip, load_labels, sidebar_watchlist, times
 
 header("How Labels Work")
 current_floor()
@@ -26,12 +26,12 @@ We smooth both with a **13-week average** (one quarter) because a single week is
 person looked at when labeling brands by hand, and it is the thick line on every brand's chart.
 
 A week with no sales in any tracked store has zero cases and **no shelf reading** (NIQ reports %ACV only where the brand
-sold), so a brand that comes and goes shows breaks in its green line, and its shelf numbers for that year rest on the
-weeks it was on a shelf. That is rare above the 250-case floor (about 1 brand in 100 has large gaps) and common below it,
-which is one more reason the floor exists. Brands with half a year or more of no sales somewhere in their history are
-flagged **"comes and goes"** (about 3 in 100 on the List: seasonal items, limited runs, relaunches); the List can hide them.
+sold), so a brand that comes and goes shows both lines sitting at zero for a stretch, and its shelf numbers for that year rest on the
+weeks it was on a shelf. Brands that, after they first started selling, went half a year or more selling under a case a week are flagged
+**"comes and goes"** (seasonal items, limited runs, relaunches). That is about 3 in 100 brands above the 250-case floor and far
+more below it, which is one more reason the floor exists. The List can hide them.
 
-A **year-end** is the last week of each 52-week block of data: weeks 104, 156, 208, 260 are the ends of 2022 to {year}.
+A **year-end** is the last week of each 52-week block of data: {", ".join(f"week {52 * (y - 2020)} is the end of {y}" for y in range(2022, year + 1))}.
 A brand gets a label at each year-end it has been around for, once it has at least 52 weeks of history.
 """)
 
@@ -93,23 +93,43 @@ def example(name, title, note):
 |---|---|---|---|---|---|---|
 | {r['sales_vs_best']:.0%} | {fmt_change(r['sales_growth'])} | {r['stores_vs_best']:.0%} | {fmt_change(tr)} | {yes(q1)} | {yes(q2 and not q1)} | {yes(q3 and not q1 and not q2)} |
 """)
-    st.caption(note)
+    if note:
+        st.caption(note)
 
 
 st.markdown("### 4. Four brands, worked through")
-st.caption(f"Pulled live from the end-of-{year} data. Open any of them on the One Brand page and use \"Step through\" to see the arithmetic.")
-example("G4 RPSDO TEQUILA", "On fire",
-        "Sales at its best and shelf more than doubled on the year: yes to question 2. The clearest kind of Growing.")
-example("CHUM CHURUM SOON HARI PEACH", "Sales up, but Declining",
-        "Sales at 99% of best and up on the year, but shelf is down 10.2% vs a year ago, just past the 10% line: yes to question 3 "
-        "(losing shelf right now). Each store that kept it sold more. The label is about shelf; the model also sees the sales, "
-        "which is why its viable chance is high.")
-example("CONQUISTADOR GOLD TEQUILA", "Flat, but Declining",
-        "Shelf is flat on the year (1.01), but at 30% of its best: yes to question 3 the other way (lost most of its shelf "
-        "and stayed there). It is in a fraction of the stores it once reached and is not winning them back.")
-example("TITO'S VODKA", "Stable",
-        "Near its best, shelf steady: no to all three. The biggest brand in the data is \"nothing dramatic is happening,\" "
-        "which is what Stable means.")
+st.caption(f"Pulled live from the end-of-{year} data, notes included. Open any of them on One Brand and use \"Step through\" to see the arithmetic. "
+           "If a brand's label has changed with newer data, the note says so.")
+
+
+def live_note(name, expect, text):
+    """The note under an example, written from the brand's current numbers so it cannot go stale."""
+    if name not in latest.index:
+        return
+    r = latest.loc[name]
+    if r["label"] != expect:
+        st.caption(f"With the current data this brand is {LABEL_WORDS[r['label']]}, not {LABEL_WORDS[expect]}; the example below no longer fits.")
+        return
+    tr = 1.0 if pd.isna(r["store_trend"]) else r["store_trend"]
+    st.caption(text(r, tr))
+
+
+example("G4 RPSDO TEQUILA", "On fire", "")
+live_note("G4 RPSDO TEQUILA", "growing", lambda r, tr:
+          f"Sales at {r['sales_vs_best']:.0%} of its best and shelf {times(tr)} vs a year ago: yes to question 2. The clearest kind of Growing.")
+example("CHUM CHURUM SOON HARI PEACH", "Sales up, but Declining", "")
+live_note("CHUM CHURUM SOON HARI PEACH", "decline", lambda r, tr:
+          f"Sales at {r['sales_vs_best']:.0%} of its best and {times(r['sales_growth'])} on the year, but shelf is {times(tr)} vs a year ago: "
+          f"yes to question 3 (losing shelf right now). Each store that kept it sold more. The label is about shelf; the model also sees "
+          f"the sales, which is why its viable chance is high.")
+example("CONQUISTADOR GOLD TEQUILA", "Flat, but Declining", "")
+live_note("CONQUISTADOR GOLD TEQUILA", "decline", lambda r, tr:
+          f"Shelf is {times(tr)} vs a year ago, but at {r['stores_vs_best']:.0%} of its best: yes to question 3 the other way (lost most of "
+          f"its shelf and stayed there). It is in a fraction of the stores it once reached and is not winning them back.")
+example("TITO'S VODKA", "Stable", "")
+live_note("TITO'S VODKA", "stable", lambda r, tr:
+          f"Sales at {r['sales_vs_best']:.0%} of its best, shelf {times(tr)} vs a year ago: no to all three. The biggest brand in the data "
+          f"is \"nothing dramatic is happening,\" which is what Stable means.")
 
 # ---- 5. viable, and the two chances -------------------------------------------------------
 st.markdown("### 5. From four words to two questions about next year")
@@ -118,7 +138,8 @@ st.markdown(f"""
 That turns the four labels into a 1 or a 0.
 
 The models answer two yes/no questions about a year from now: **will it be viable?** and **will it be growing?**
-Growing is part of viable, so the viable chance should be the bigger number. A chance of 0.65 means: of 100 brands that
+Growing is part of viable, so the viable chance is never the smaller number (the two are separate models; where growing
+comes out a point or two higher, viable is lifted to match). A chance of 0.65 means: of 100 brands that
 looked like this one a year earlier, about 65 turned out yes. The chances are **calibrated** so that sentence is true
 (the raw model scores are stretched because growing is rare; a calibration step maps them back to real rates without
 changing any brand's rank).
@@ -155,7 +176,7 @@ if len(cats):
         f"| {c.title()} | {fmt_change(r['category_growth'])} | {fmt_change(r.get('category_shelf_trend'))} |" for c, r in cats.iterrows()))
     if cats["category_shelf_trend"].notna().any() and (cats["category_shelf_trend"].dropna() < 1).mean() > 0.8:
         st.info(f"**Shelf shrank almost everywhere in {year}.** Established brands in nearly every category were in fewer stores "
-                f"than a year earlier. A brand that merely held its store count was beating its field. The models were tested in "
+                f"than a year earlier. A brand that merely held its shelf was beating its field. The models were tested in "
                 f"this same market, so the chances already reflect it.")
 
 # ---- 7. what we checked and left alone ------------------------------------------------------
@@ -165,7 +186,7 @@ st.markdown("""
   Declining labels. Those brands do behave like Stable ones a year later, and the guard would not touch any of Kristin's
   112, but it changes the published rules, so it is parked for the team to decide. The label gloss ("lost shelf space")
   and the scorecard make the case readable without it.
-- **A 500-case floor instead of 250.** Retested: not better (growing 60 of 100 vs 66), so 250 stays.
+- **Training the models at 500 cases instead of 250.** Retested: not better (growing 60 of 100 vs 66), so the models stay at 250. The slider opens at 500 because that is the size Eurpac prefers to look at; that only changes what is shown.
 - **Shelf vs category as a rule or a model input.** Raw shelf trend predicts next year at least as well; it stays as context.
 """)
 

@@ -72,7 +72,7 @@ def sidebar_watchlist():
                     st.rerun()
             st.download_button("Download watchlist", "\n".join(watch), "watchlist.txt", width="stretch")
         else:
-            st.caption("Pin brands from the List or Brand page.")
+            st.caption("Pin brands from The List or One Brand.")
 
 
 def explain(title, text):
@@ -142,7 +142,7 @@ def why_label(r):
 
 
 def label_chip(label, gloss=False):
-    """The colored label pill. gloss=True adds what it measures, e.g. 'Declining: losing shelf space'."""
+    """The colored label pill. gloss=True adds what it measures, e.g. 'Declining: lost shelf space'."""
     text = LABEL_WORDS[label] + (f": {LABEL_GLOSS[label]}" if gloss else "")
     return (f'<span class="chip" style="background:{LABEL_COLORS[label]}22;color:{LABEL_COLORS[label]};'
             f'border:1px solid {LABEL_COLORS[label]}66">{text}</span>')

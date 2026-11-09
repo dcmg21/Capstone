@@ -21,12 +21,11 @@ One row per brand that sold at least **{floor} cases** in {year} (the size floor
 
 - **Label today**: what the brand is at the end of {year}, by the same rules a human used. The labels are about shelf space more than sales: {GLOSS_LINE}.
 - **Viable {year + 1}** and **Growing {year + 1}**: the model's chance, 0 to 1, that the brand will still be viable / be growing a year from now.
-  Read 0.65 as "about 65 in 100 brands that looked like this one went on to grow." Growing is part of viable, so viable is never the smaller number (two separate models; where growing comes out higher, viable is lifted to match).
-- **Comes and goes** (filter): brands with half a year or more of no sales somewhere in their history, usually seasonal items, limited runs or relaunches. Their numbers measure a calendar, not a trend; the checkbox hides them.
+  Read a growing chance of 0.65 as "about 65 in 100 brands that looked like this one went on to grow," and a viable chance the same way for staying viable. Growing is part of viable, so viable is never the smaller number (two separate models; where growing comes out higher, viable is lifted to match).
+- **Comes and goes** (filter): brands that, after they first started selling, went half a year or more selling under a case a week, usually seasonal items, limited runs or relaunches. Their numbers measure a calendar as much as a trend; the checkbox hides them.
 - **Years of data**: how long the brand has been in the data. A brand with two years can look "at its best" just because there is little history behind it; the filter on the left lets you require more.
 - **Sales vs category** and **Shelf vs category**: the brand's change over the year divided by its category's change (established brands only). 1.00 = moved with the category, 1.20 = did 20% better, 0.85 = lost ground. Added at Eurpac's request; the models see the sales one.
-- **Why this label**: what the label means and the one number that decided it, e.g. "lost shelf space: shelf 20% of its best". Sales vs best = cases last quarter as a share of the brand's best quarter ever.
-  Stores vs best = store coverage now as a share of the most it ever had. Store count = coverage this year vs last year.
+- **Why this label**: what the label means and the number that decided it, e.g. "lost shelf space: shelf 20% of its best". Every number is defined on the How Labels Work page.
 - **Rank by "beating its category"** sorts on Sales vs category, highest first. The size floor only hides brands; it does
   not change the category a brand is compared with.
 
@@ -59,8 +58,8 @@ with st.sidebar:
     f["search"] = st.text_input("Search", value=f["search"], placeholder="brand or family name")
     if "comes_and_goes" in p.columns:
         f["hide_gaps"] = st.checkbox("Hide brands that come and go", value=f["hide_gaps"],
-                                     help="Seasonal items, limited runs and relaunches: brands with half a year or more of no sales "
-                                          "somewhere in their history. Their 'vs best' and 'vs a year ago' numbers measure a calendar, not a trend.")
+                                     help="Seasonal items, limited runs and relaunches: brands that, after they first started selling, went half a year "
+                                          "or more selling under a case a week. Their 'vs best' and 'vs a year ago' numbers measure a calendar as much as a trend.")
     f["sort_by"] = st.radio("Rank by", RANKS, index=RANKS.index(f["sort_by"]))
     st.markdown("## Pin")
     c_n, c_b = st.columns([1, 2])
@@ -133,7 +132,7 @@ picked_row = st.dataframe(
                                                                 "1.20 = grew 20% faster than it, 0.85 = lost ground. A very large number means the brand sold "
                                                                 "almost nothing the year before. The category means its established brands: two full years of history, 250+ cases a year earlier"),
         "Shelf vs category": st.column_config.NumberColumn(format="%.2f", width=110,
-                                                           help=f"The brand's store-count change in {year} divided by its category's. 1.00 = moved with the category, "
+                                                           help=f"The brand's shelf change in {year} (share of stores carrying it) divided by its category's. 1.00 = moved with the category, "
                                                                 "1.10 = held shelf 10% better than it, 0.85 = lost shelf faster. Same established-brand baseline"),
         "Why this label": st.column_config.TextColumn(width=420, help="What the label means, then the number that decided it. "
                                                                         "Shelf = share of stores carrying the brand. Full math on the How Labels Work page"),

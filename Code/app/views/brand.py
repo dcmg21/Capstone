@@ -84,7 +84,7 @@ stores that carry it, %ACV), measured three ways: against the brand's own best e
 against its category. That is the scorecard under the brand's name.
 
 The label comes from the shelf row, with sales only deciding the two extremes: {GLOSS_LINE}.
-So a brand can be "Declining" (losing stores) while its sales are up. Both are true, and the model's chances
+So a brand can be "Declining" (lost shelf space) while its sales are up. Both are true, and the model's chances
 use all of it.
 
 The chart is the picture a person used to label brands by hand. Thin line = each week; thick line = 13-week
@@ -140,13 +140,13 @@ if last is not None:
 else:
     st.markdown(f"Label today: {label_chip(row['label'], gloss=True)}", unsafe_allow_html=True)
 if bool(row.get("comes_and_goes", False)):
-    st.warning("**Comes and goes.** This brand had half a year or more with no sales somewhere in its history (seasonal item, "
-               "limited run or relaunch). Its \"vs its best\" and \"vs a year ago\" numbers measure a calendar as much as a trend, "
-               "and the green line breaks where nothing sold. Read the label and the chances with that in mind.")
+    st.warning("**Comes and goes.** After it first started selling, this brand went half a year or more selling under a case a week "
+               "(seasonal item, limited run or relaunch). Its \"vs its best\" and \"vs a year ago\" numbers measure a calendar as much "
+               "as a trend, and both lines sit at zero where nothing sold. Read the label and the chances with that in mind.")
 if not scored:
-    st.info("Below the 12-case scoring floor, so no chance is given. The label and chart still apply.")
+    st.info("Sold under 12 cases last year, so the model gives no chance. The label and chart still apply.")
 elif row["cases_last_year"] < floor:
-    st.info(f"This brand is below your {floor}-case floor, so it is hidden on the List page. Shown here because you asked for it.")
+    st.info(f"This brand is below your {floor}-case floor, so it is hidden on The List. Shown here because you asked for it.")
 
 # ---- the chart (Kristin's view) -------------------------------------------------
 overlay = st.toggle(f"Show the {cat_l} average, scaled to this brand", value=False,
@@ -234,7 +234,7 @@ def walkthrough(r, wk, cat):
 
     if pd.notna(r.get("category_growth")):
         g, cs = r["category_growth"], r.get("category_shelf_trend")
-        st.markdown(f"**3. Against {cat}: the established brands in the category (two full years of history, 250+ cases last year)**")
+        st.markdown(f"**3. Against {cat}: the established brands in the category (two full years of history, 250+ cases in the year before this year-end)**")
         st.markdown(f"""
 | | This brand | {cat.title()} | Brand ÷ category | Reading |
 |---|---|---|---|---|

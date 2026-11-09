@@ -239,7 +239,7 @@
         <li><b>Will the brand be growing next year?</b> (the investment question)</li>
       </ul>
       The model sees thirteen facts about each brand: the three numbers behind the label, store coverage, size, age, last year's sales growth, momentum (how many of the last 8 quarters in a row, counting back from now, sales were at 80% or more of the best the brand had reached up to then; 8 = held its level for two years, 0 = fell off recently), two category-context numbers added in November at Eurpac's request (how the category grew, and the brand's growth against it), its current label, its category and its price tier.
-      We try two models, a simple one (logistic regression) and a more flexible one (gradient boosting), and compare both to the simplest possible rule, "assume nothing changes," and to the starting idea, "last year's growth alone."
+      We try two models, a simple one (logistic regression) and a more flexible one (gradient boosting), and compare both to the simplest possible rule, "every brand stays the same," and to the starting idea, "last year's growth alone."
     </div></div>
     <div class="row"><div class="k">How we score it</div><div>
       Sort every brand by how confident the model is, take the top 100, and count how many were actually a 1 a year later. That is the number a buyer cares about: "if I had shortlisted these 100, how many would have worked out?"
@@ -248,7 +248,7 @@
       Think of five people each handing you a list of 100 brands at the end of 2024. We check each list against what happened in 2025.
       <ul>
         <li><b>Random picking.</b> Close your eyes and point at 100 brands. This is the floor; anything that can't beat it is useless.</li>
-        <li><b>"Nothing changes."</b> Someone who says "whatever a brand is today, it will be the same next year," and picks 100 brands that are healthy today. Lazy but smart, and hard to beat.</li>
+        <li><b>"Stays the same."</b> Someone who says "whatever a brand is today, it will be the same next year," and picks 100 brands that are healthy today. This is the bar a model has to clear to be worth using, and ours do: 98 vs 84 on viable, 66 vs 53 on growing.</li>
         <li><b>"Last year's growth alone."</b> Someone who looks at one number only, did sales go up last year, and picks the 100 with the best growth. This was the original starting idea.</li>
         <li><b>Simple model.</b> Logistic regression. Looks at thirteen facts about each brand and weighs them.</li>
         <li><b>Boosted model.</b> Gradient boosting. More flexible; it can learn things like "small brands behave differently from big ones."</li>
@@ -258,7 +258,7 @@
     <div class="row"><div class="k">What we found</div><div>
       Of the 100 brands each approach was most sure about, how many were actually a 1 a year later:
       <table>
-        <tr><th>Question</th><th>Random picking</th><th>"Nothing changes"</th><th>"Last year's growth alone"</th><th>Simple model</th><th>Boosted model</th></tr>
+        <tr><th>Question</th><th>Random picking</th><th>"Stays the same"</th><th>"Last year's growth alone"</th><th>Simple model</th><th>Boosted model</th></tr>
         <tr><td>Still viable next year?</td><td>43</td><td>84</td><td>61</td><td class="hit">98</td><td>95</td></tr>
         <tr><td>Growing next year?</td><td>8</td><td>53</td><td>19</td><td>51</td><td class="hit">65</td></tr>
       </table>

@@ -34,12 +34,12 @@ st.markdown("")
 st.markdown(f"""
 **Where to go**
 
-- **The List**: every brand above the floor, ranked. Filter by category, price tier, label, or how sure the model is. Search. Pin to a watchlist. Export.
+- **The List**: every brand above the floor, ranked. Filter by category, price tier, label, years of data, or how sure the model is. Search. Pin to a watchlist. Export.
 - **One Brand**: a brand's sales-and-shelf scorecard, its weekly chart, its label at every year-end, and both chances.
 - **How Labels Work**: the reference page. Every number, the three questions, worked examples, the category context.
 - **The Model**: how the predictions held up on a year the models never saw, what they lean on, and how to read a chance.
 
-Data runs to the end of {year}. A brand needs a year of history to get a label and two years to get a chance.
+Data runs to the end of {year}. A brand needs a year of history to get a label, and at least 12 cases last year to get a chance.
 """)
 
 sidebar_watchlist()
