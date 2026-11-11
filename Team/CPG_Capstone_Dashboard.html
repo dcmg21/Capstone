@@ -200,7 +200,7 @@
     <tbody id="files"></tbody>
   </table>
 
-  <div class="foot">Living tracker &middot; last updated 2026-10-29 &middot; open this file anytime; checkboxes persist per browser.</div>
+  <div class="foot">Living tracker &middot; last updated 2026-11-10 &middot; open this file anytime; checkboxes persist per browser.</div>
 </div>
 
 <script>
@@ -211,8 +211,9 @@ const DEADLINES = [
   ["2026-09-28","Draft 1 due (>=5 pages, >=5 refs, APA)"],
   ["2026-10-26","Draft 2 submitted"],
   ["2026-11-15","Draft 3 due (>=20 pages). May also be +1 week (Nov 22); confirm"],
+  ["2026-11-16","Eurpac call: show supplier pages, upload and retrain"],
   ["2026-11-18","Final presentation due"],
-  ["2026-11-20","Immersion (present, mandatory)"],
+  ["2026-11-20","Dallas immersion: we present (before or after lunch); Jacob and Scott attending"],
   ["2026-12-04","Final paper due"],
   ["2026-12-11","Journal submission due"],
 ];
@@ -221,49 +222,58 @@ const DONE = [
   "Submitted the Research Outline (Sept 7), Draft 0 (Sept 14), Draft 1 (Sept 28), Draft 2 (Oct 26)",
   "NDA signed; Eurpac approved copying the data to our machines",
   "Rebuilt the spirits dataset from NIQ's raw feed; matches Kristin's file exactly",
-  "Rules reproduce Kristin's four labels: 90% by tier, 95% viable/not on her 112 vodka brands",
+  "Rules reproduce Kristin's four labels: 90% by tier, 96% viable/not on her 112 vodka brands",
   "Rules behave the same in all 11 categories; no seasonal bias",
-  "Prediction tested on 2025: viable 98 of top 100, growing 65 of top 100",
-  "Step 6 predicts 2026 for every brand; Eurpac method guide written",
-  "First Eurpac working call (Oct 19): extensions, survival first, broker use case, 9L case",
+  "Prediction tested on 2025: viable 98 of top 100, growing 66 of top 100 (stays-the-same guess: 84 and 53)",
+  "Chances calibrated (Nov 2): 0.65 means about 65 in 100",
+  "Brand Radar app built and demoed to Eurpac (Nov 2): they loved it; two top-10 picks are current clients",
+  "Category context built (Nov 8): on screen, no change in accuracy. 500-case retest: not better, models stay at 250",
+  "Brand page is a sales-and-shelf scorecard; How Labels Work reference page; comes-and-goes flag (Nov 8 to 9)",
+  "Supplier pages built (Nov 10): Supplier List, One Supplier, supplier filter on the Brand List",
+  "Code on GitHub (private), data kept out",
 ];
 const TODOS = [
-  "Put the 10% size floor into step 5, run it, send the case count to Jacob for Chaz",
-  "Category context: add 'beats its own category' (Devin promised it on the call)",
-  "Compare our scores to Kristin's opportunity score; needs her un-anonymized file, ask again",
-  "Settle with Devin what 'validate beyond vodka' means (step 4 checks vs hand-labeling whiskey)",
-  "Draft 3: rewrite the abstract and intro (they still describe the old 40% label); fix the lit review typos that came back",
-  "Streamlit app for Eurpac, local only: predictions table with filters, brand chart with label and reason, how-to-read tab",
+  "Upload new NIQ data and retrain from inside the app (its own page; due for the Nov 16 Eurpac call)",
+  "Dallas presentation, Nov 20: build it the weekend of Nov 14; tell Jacob the time slot",
+  "Draft 3: rewrite the abstract and intro (they still describe the old 40% label); fix the lit review typos; add calibration, category context, the 500 retest",
   "Confirm Draft 3 date: Nov 15, or Nov 22 if the one-week shift applies",
-  "Production copy for Eurpac: steps 1, 2, 6 + setup page + Excel export",
-  "Ask Scott next call: acquisition and bankruptcy dates; TDP extract",
+  "Decide with Devin: the sales guard on 'declining' (D25) and a rule for brands that never sold (D28)",
+  "Ask Jacob: does Eurpac have a roll-up of NIQ's brand owners (Diageo appears under three names)?",
+  "Waiting on Jacob: which promotional-activity details matter (nice-to-have)",
+  "Compare our scores to Kristin's opportunity score; needs her un-anonymized file, ask again",
+  "Production copy for Eurpac: steps 1, 2, 6 + setup page",
+  "SMU logo file for the app header; final app name",
   "Keep building toward 20 sources. We have 18",
 ];
 const QUESTIONS = [
+  "For Jacob: is there a parent-company roll-up for suppliers, or should we show NIQ's brand owners as they are?",
+  "For Jacob: which promotional-activity details would you want to see?",
+  "For Jacob and the CIO: where will the app live after the program (their machine or their cloud account)?",
   "For Scott: can you share dates for the 123 acquisitions and 37 bankruptcies in Kristin's data?",
-  "For Scott: what does the acquisition analysis look at, so we know what a score would need to show?",
-  "For Chaz: does the 10% floor (we will send the case count) match how you think about brand size?",
-  "Can we get the NIQ TDP extract? Your mapping tab uses it for the distribution gap",
-  "Who at Eurpac would run this each year, and do they have Python, or should SMU run it and send the file?",
+  "Who at Eurpac will upload new data each year, and do they have Python installed?",
 ];
 const DECISIONS = [
   "Kristin's four labels reproduced by rules; her viable = stable + growing is our 1. We invent nothing about 1 and 0.",
+  "The labels are about shelf space more than sales; the app says so next to every label.",
   "Brand extension is the unit (Eurpac confirmed Oct 19).",
   "Survival is the headline; growth is reported honestly as better than the obvious rule at the top of the list.",
-  "Size floor = exclude the smallest 10% of brands, replacing the fixed 250.",
-  "Steps 3 to 5 are proof, run once. Eurpac's yearly run is steps 1, 2, 6.",
-  "Plain words everywhere: code, printouts and the guide use the same names.",
-  "ROI deferred; Eurpac agrees it is too early.",
-  "Kristin's R code untouched; data never in OneDrive or git (NDA).",
+  "Three floors: models trained and tested at 250 cases; chances shown down to 12; the app's slider opens at 500 (viewing only).",
+  "Chances are calibrated; viable is never shown below growing.",
+  "Category context and supplier views are context for a person, not rules and not drivers of the model.",
+  "Steps 3 to 5 are proof, run once. Eurpac's yearly run is steps 1, 2, 6 (the app's rebuild).",
+  "Plain words everywhere; no number is replaced by a made-up word or cap.",
+  "App and retraining stay local for now. Kristin's R code untouched; data never in git (NDA).",
 ];
 const FILES = [
+  ["Code/app/","Brand Radar, the Streamlit app: Home, Brand List, One Brand, Supplier List, One Supplier, How Labels Work, How the Model Works"],
+  ["Team/Brand_Radar_Cliff_Notes.docx","Short reference for the app: every page, number and rule in plain words"],
   ["Team/Eurpac_Method_Guide.html","The explainer: what we did, why, results, issues, step by step"],
-  ["Code/brand_scoring_extension/","Our code: step01 load, 02 label, 03 check Kristin, 04 check categories, 05 predict, 06 predict next year"],
-  ["Code/brand_scoring_extension/DECISIONS.md","Every decision (D1 to D21) and why"],
+  ["Code/brand_scoring_extension/","Our pipeline: step01 load, 02 label, 03 check Kristin, 04 check categories, 05 predict, 06 predict next year"],
+  ["Code/brand_scoring_extension/DECISIONS.md","Every decision (D1 to D28) and why"],
   ["Code/brand_scoring/","Kristin's R project (read-only)"],
   ["Paper/Draft 2/","Draft 2 as submitted (Oct 26)"],
   ["Team/PROJECT_STATUS.md","Running status log (text)"],
-  ["Team/Meetings/","Recordings and transcripts, incl. the Oct 19 Eurpac call"],
+  ["Team/Meetings/","Recordings and transcripts: Eurpac calls of Oct 19, Nov 2, Nov 9"],
 ];
 
 const fmt = d => d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});

@@ -1,6 +1,6 @@
 # Capstone Project Status - Living Log
 
-**Last updated: 2026-11-02**
+**Last updated: 2026-11-10**
 This is the single running "where we are" document. It gets updated every session.
 
 ---
@@ -72,7 +72,15 @@ What we tried and dropped: a growth-threshold label (40%, then calibrated to 10%
 
 ## Action items / next up
 
-After the Nov 2 demo (Eurpac loved it). Jacob: upload/retrain plus category context would make this round a success.
+After the Nov 9 call. Jacob: "a good foundation to build off of." Three things due Monday Nov 16, then Dallas Nov 20.
+
+- [x] **Supplier pages built Nov 10** (Suppliers catalog + One Supplier, supplier filter on The List, supplier link on One Brand; D28). Sidebar regrouped; fixed picks that did not register. Original spec: a catalog like The List, one row per supplier (NIQ BRAND OWNER), click through to a page with a chart and every brand it supplies (scroll box). No category or price tier at supplier level. Data file already exists (`app/data/suppliers.parquet`).
+- [ ] **Retrain inside the app.** Button runs steps 1, 2, 6 (`build_app_data.py`) with guardrails; probably its own page with upload.
+- [ ] **Upload new NIQ data inside the app.** Point at a folder, check the files, run, refresh.
+- [ ] **Dallas presentation, Nov 20** (event Nov 19 to 20, before or after lunch; tell Jacob the slot). Jacob and likely Scott attend. Build it this weekend.
+- [ ] Jacob to send a note on which promotional-activity details matter (nice-to-have; only ~20% of rows have promo).
+- [x] Category context: built, in the app, honest result (no accuracy change). Done Nov 8.
+- [x] 500 retest: not better; models stay at 250; slider opens at 500 (Devin's default, kept). Done Nov 8.
 
 - [ ] **Category context, for next week's call** (Jacob's ask, Devin's earlier commitment): each extension vs its category, as a fourth ratio next to the three. Exclude weak brands below a floor from the category comparison. Scott's example: RTDs up 16%, bourbon down 5%.
 - [ ] **Retrain at 500 cases** and show results next to the 250 baseline (`step05_predict_floor500.py`). Scott: cocktails and seltzers may need higher thresholds than mainstay spirits.
@@ -104,6 +112,9 @@ After the Nov 2 demo (Eurpac loved it). Jacob: upload/retrain plus category cont
 ---
 
 ## Meeting log
+
+### 2026-11-09 - Eurpac call (Jacob; Drew, Devin). Only the last 9 minutes recorded. Summary in `Meetings/Eurpac_11-09-26_summary.txt`.
+Jacob likes the direction ("good foundation"). Spec for the supplier page (catalog like The List, click through to all brands). Promo activity is a nice-to-have; Jacob will send details. Three deliverables by Monday Nov 16: supplier page, retrain in app, upload in app. Dallas presentation Nov 20; Jacob and Scott plan to attend.
 
 ### 2026-11-02 - Eurpac demo (Jacob Saunders, Chaz Cahn, Scott; Drew, Devin). Summary in `Meetings/Eurpac_11-02-26_summary.txt`.
 Drew demoed Brand Radar. Went well: Don Fulano and G4 Reposado confirmed as real winners; Chaz sees two current clients in the top 10 and would use the list when pitching retailers. Asks: category context as a fourth ratio, retrain at 500, upload and retrain in the app, supplier portfolio view. Decision: stay local for now. Weekly meetings from here. (Wispr Flow's notes label the demo "Streeter"; it was Drew.)

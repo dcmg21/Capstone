@@ -47,7 +47,7 @@
 
 <header>
   <h1>How we label brands, and how we know it works</h1>
-  <div class="sub">Eurpac brand-opportunity project, phase 2. Drew Nunnally and Devin Streeter, SMU MSDS. Advisors: Dr. Bivin Sadler, Kristin Henderson. Updated November 2, 2026.</div>
+  <div class="sub">Eurpac brand-opportunity project, phase 2. Drew Nunnally and Devin Streeter, SMU MSDS. Advisors: Dr. Bivin Sadler, Kristin Henderson. Updated November 10, 2026.</div>
 </header>
 
 <div class="story">
@@ -55,7 +55,7 @@
   Kristin looked at 112 vodka brands by hand and called each one discontinued, declining, stable or growing.
   We wrote rules that read a brand's sales chart the way she did, and on those vodka brands they land on the same answer 9 times out of 10.
   Those rules now label every one of the 22,000 spirits brands, at the end of every year, with no hand work.
-  A model then predicts next year's label from this year's: on a year it never saw, 98 of its 100 most confident picks were still viable. Predicting which brands will be growing is harder: our best model gets 65 of 100, better than a coin flip, and we say so.
+  A model then predicts next year's label from this year's: on a year it never saw, 98 of its 100 most confident picks were still viable. Predicting which brands will be growing is harder: our best model gets 66 of 100, better than a coin flip, and we say so.
 </div>
 
 <div class="step">
@@ -64,7 +64,7 @@
     <div class="row"><div class="k">Brand extension</div><div>The unit we score: a line under a brand family, like one flavor or one expression. 22,495 of them.</div></div>
     <div class="row"><div class="k">The four tiers</div><div><b>Discontinued</b>: has effectively stopped selling. <b>Declining</b>: sales or store coverage trending down. <b>Stable</b>: present, no clear trend. <b>Growing</b>: sales and/or coverage rising. These are Kristin's definitions.</div></div>
     <div class="row"><div class="k">Viable</div><div>Kristin's word for "alive and healthy": stable or growing. It is not a separate calculation, just the four-word label collapsed to yes/no. Growing or stable = <b>1</b> (viable). Declining or discontinued = <b>0</b> (low performance). Every brand carries both the word and the 1/0; step 3 checks the 1/0 against hers, step 4's "viable %" is the share of 1s, and step 5's first question is "will it be a 1 next year?"</div></div>
-    <div class="row"><div class="k">%ACV</div><div>Store coverage: the share of the market's stores that carry the brand, weighted by store size. We say "stores" or "coverage" for short.</div></div>
+    <div class="row"><div class="k">%ACV</div><div>Store coverage: the share of the market's stores that carry the brand, weighted by store size. We say "stores" or "coverage" for short. The app calls the same thing <b>shelf</b>, and calls cases sold <b>sales</b>.</div></div>
     <div class="row"><div class="k">As of</div><div>A label computed using only data up to a given date, as if we were standing there. "As of end of 2023" ignores everything after.</div></div>
   </div>
 </div>
@@ -260,10 +260,10 @@
       <table>
         <tr><th>Question</th><th>Random picking</th><th>"Stays the same"</th><th>"Last year's growth alone"</th><th>Simple model</th><th>Boosted model</th></tr>
         <tr><td>Still viable next year?</td><td>43</td><td>84</td><td>61</td><td class="hit">98</td><td>95</td></tr>
-        <tr><td>Growing next year?</td><td>8</td><td>53</td><td>19</td><td>51</td><td class="hit">65</td></tr>
+        <tr><td>Growing next year?</td><td>8</td><td>53</td><td>19</td><td>51</td><td class="hit">66</td></tr>
       </table>
       <b>Survival is predictable.</b> 98 of the model's top 100 picks were still viable a year later, and 7 to 10 of the top 10 in every category (six categories at 10 of 10). What drives it: a brand still in most of the stores it ever had almost always survives. The simple model does this as well as the complex one, so we use the simple one.
-      <br><br><b>Growth is much harder, and we say so.</b> Today's growing brands keep growing about half the time (53 of 100). Our best model gets 65 of 100, and its picks are the right kind of brand: mid-sized, growing, across tequila, vodka and cocktails. The gain is real but comes from one test year, and the overall ranking quality barely moves, so we call it "better than picking what is growing now at the top of the list," not more. It is strongest in vodka and tequila (10 and 9 of the top 10) and weakest in cognac, brandy and grain alcohol (2 to 3 of 10).
+      <br><br><b>Growth is much harder, and we say so.</b> Today's growing brands keep growing about half the time (53 of 100). Our best model gets 66 of 100, and its picks are the right kind of brand: mid-sized, growing, across tequila, vodka and cocktails. The gain is real but comes from one test year, and the overall ranking quality barely moves, so we call it "better than picking what is growing now at the top of the list," not more. It is strongest in vodka and tequila (10 and 9 of the top 10) and weakest in cognac, brandy and grain alcohol (2 to 3 of 10).
       <br><br><b>Last year's sales growth alone predicts neither.</b> 61 and 19 of 100. The idea of predicting next year from this year was right; the signal lives in store coverage and distance from peak, not in last year's growth rate.
       <br><br><b>What drives what.</b> The <i>labels</i> come from three numbers only: sales vs best, stores vs best, store trend. The <i>predictions</i> use ten facts, but one dominates each question. For "still viable": stores vs best, by a wide margin. For "growing": sales vs best, then stores vs best and last year's growth.
     </div></div>
@@ -314,8 +314,8 @@
       Steps 3, 4 and 5 are proof. They were run once, for the paper, and do not need repeating. When new NIQ files arrive, the yearly run is: load the data (step 1), label every brand (step 2), predict next year (step 6). Step 6 calls the other two itself, so in practice it is one file. The year-ends are read from the data, so a new year of files needs no code change. The production copy will add the Excel export.
     </div></div>
     <div class="row"><div class="k">Issues</div><div>
-      <div class="issue"><b>The smallest brands are listed but not scored.</b> The floor is the bottom 10% of brands by cases (Eurpac's preference, Oct 19); the case count it implies goes to Chaz to confirm. One setting to change.</div>
-      <div class="issue"><b>A brand needs a year of history for a label and two years for a score.</b> A brand launched six months ago appears with no label yet. <span class="ok">Okay because</span> there is no chart to read; this is the method, not a bug.</div>
+      <div class="issue"><b>The smallest brands are scored with less confidence.</b> The models learned from and were tested on brands selling 250 or more cases a year. The app gives a chance to every brand down to 12 cases so its size slider has room, and opens at 500, the size Eurpac prefers to look at. Trust the chances most at 250 and up. A percentile floor ("the bottom 10%") was tried and dropped: brand sizes are too lopsided for it to work.</div>
+      <div class="issue"><b>A brand needs a year of history for a label.</b> A brand launched six months ago appears with no label yet. <span class="ok">Okay because</span> there is no chart to read; this is the method, not a bug. Young brands can also look "at their best" on little history, so the app lets you require more years of data.</div>
       <div class="issue"><b>Running it needs Python.</b> <span class="ok">Options:</span> Eurpac installs it and points one settings file at their data folder, or the SMU team runs it for them each year. A stripped-down "production" copy with only steps 1, 2 and 6 will be handed over at the end.</div>
     </div></div>
   </div>
@@ -323,7 +323,8 @@
 
 <h2 style="font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--navy);margin:26px 0 10px">What comes next</h2>
 <div class="next">
-  <div class="card"><b>From the Oct 19 call</b>Survival is the priority; the list is for finding brands to sign and represent, not acquire. Next: set the floor at the bottom 10% of brands, add a "beats its own category" measure, compare against Kristin's opportunity score, and ask Scott for acquisition dates.</div>
+  <div class="card"><b>The app: Brand Radar</b>Everything in this guide is live in the app (Code/app). <b>Brand List</b> ranks every brand with filters. <b>One Brand</b> shows a sales-and-shelf scorecard, the chart, and the math behind any year's label. <b>Supplier List</b> and <b>One Supplier</b> add each supplier up from its brands. <b>How Labels Work</b> and <b>How the Model Works</b> explain the method in the app's own words.</div>
+  <div class="card"><b>From the Nov 2 and Nov 9 calls</b>Category context is built and on screen (it did not change accuracy; a brand's own history already carries it). Retested at 500 cases: not better, so the models stay at 250. Supplier pages built Nov 10. Still to come by the end of the program: upload new NIQ data and retrain from inside the app. Promotional activity is a nice-to-have, waiting on Eurpac's note.</div>
   <div class="card"><b>The paper</b>Methods and results sections rewritten around steps 1 to 6, with the tables from steps 3, 4 and 5.</div>
   <div class="card"><b>Production copy</b>Steps 1, 2 and 6 only, with a one-page setup guide, for Eurpac to run on their own.</div>
   <div class="card"><b>Later: ROI</b>Only possible with cost or margin data from Eurpac.</div>

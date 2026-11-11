@@ -4,12 +4,12 @@ import streamlit as st
 
 from common import GLOSS_LINE, current_floor, explain, footer, header, sidebar_watchlist
 
-header("The Model")
+header("How the Model Works")
 floor = current_floor()
 
-explain("The model page", """
-The size floor slider does not affect this page. It explains what the two chances on The List mean,
-how we tested them on a year the models had never seen, and where they are strong and weak.
+explain("How the model works", """
+This page explains what the two chances on the Brand List mean, how we tested them on a year the models
+had never seen, and where they are strong and weak.
 """)
 
 # ---- 1. what we predict ----------------------------------------------------------------
@@ -91,7 +91,7 @@ In one line: **survival is about shelf, growth is about sales momentum.**
 
 **About "vs its category."** Eurpac asked whether a brand's growth relative to its category should feed the
 prediction. We built it (each brand's growth divided by its category's growth over established brands) and it is
-on The List and One Brand. It did not change the model's accuracy: once the model knows how a brand is doing
+on the Brand List and One Brand. It did not change the model's accuracy: once the model knows how a brand is doing
 against its own history, how its category did adds almost nothing. It is still useful context for a person reading
 the list.
 """)
@@ -112,7 +112,7 @@ st.markdown("Survival is reliable everywhere. Growth is reliable in vodka and te
 st.markdown("### The size floor")
 st.markdown(f"""
 The models were tested with a floor of **250 cases a year** (about five a week), because tiny brands are always
-"at their best" and flood the top of the growing list. The slider on Home and The List changes which brands
+"at their best" and flood the top of the growing list. The slider on Home, the Brand List and the Supplier List changes which brands
 you see; it does not change what the models learned. Yours is set to **{floor}**.
 
 **What if the models used 500?** We retrained and retested at 500. Viable: 98 of the top 100 either way.

@@ -33,6 +33,7 @@ Kristin, Eurpac, the spring cohort) can see the reasoning without asking us.
 | D25 | 2026-11-08 | "Declining" with sales up: fix the word, not the rule. Label gloss in the app; a sales guard was tested and parked for Devin | Active |
 | D26 | 2026-11-08 | Brand page reorganized around a sales-and-shelf scorecard (vs own best, vs a year ago, vs category). Category shelf trend added to step 2 as context only | Active |
 | D27 | 2026-11-09 | Merge of devin and main: category context is D24 only (ratio, fixed 250+ field). App-side difference version removed; sidebar floor (default 500) only controls what is displayed | Active |
+| D28 | 2026-11-10 | Supplier pages (catalog and one supplier), sidebar regrouped, and a fix for picks that did not register | Active |
 
 ---
 
@@ -746,6 +747,48 @@ brands made up the category. Two definitions of the same number would have disag
 
 **The sidebar floor** (default 500) now only controls what is displayed: it hides small brands from the
 Home numbers and The List. It does not change the category comparison, the labels or the models.
+
+---
+
+## D28. Supplier pages, a regrouped sidebar, and picks that now always register
+
+**Why:** on Nov 9 Jacob asked for a supplier view: a catalog like The List, one row per supplier, and a
+page per supplier listing every brand it owns (scroll box). No category or price tier at supplier level.
+
+**Suppliers page.** One row per NIQ BRAND OWNER (`data/suppliers.parquet`, Devin's file). Every number is
+added up from that supplier's brands above the size floor, the same brands The List shows: brands,
+cases, sales vs a year ago (same brands, this year / last year), growing today, share viable today,
+best bet (its brand with the highest growing chance). A stacked bar shows
+the top 15 of the current ranking by label. Search, rank by, minimum number of brands.
+
+**Tried and removed the same day:** an "expected growing" column (a supplier's growing chances added up).
+Correct, but it took explaining, and Jacob had not asked for it. Each brand's own chance is on the supplier's page.
+
+**One Supplier page.** Everything on the page covers the brands in its table: those above the floor, or
+all of them with the "include its smaller brands" switch. Cards, weekly sales (these brands together),
+brands by label, cases by category, then the table (click a brand to open it). "Open on The List" sets
+The List's supplier filter. One Brand shows the supplier under the name and links back.
+
+**Suppliers are as NIQ lists them.** Some companies appear under more than one owner name (Diageo PLC,
+Diageo North America, Ste. Pierre Smirnoff). We do not merge them; ask Eurpac if they have a roll-up.
+
+**Sidebar.** Navigation is grouped (Brands, Suppliers, How it works). The List's filters are the same
+ones as before plus Supplier, in two groups ("Chances and history", "Kind of brand") under Search and
+Rank by, with a count of filters on and a Clear button. "Pin top N" moved into the Watchlist block.
+
+**Page names (same day):** Brand List (was The List), One Brand, Supplier List, One Supplier, How Labels Work,
+How the Model Works (was The Model). Older entries above use the old names.
+
+**Bug fixed: picks that did not stick.** A widget whose starting value follows what you last picked
+(the brand dropdown, the size floor slider, the old List filters) got a new identity after each change,
+so every second change in a row was ignored. This is the "oh, that didn't stick" from the Nov 2 demo.
+Each of these now has a fixed `key` (`filter_state` in `app/common.py` for filter blocks), tested with
+several changes in a row on every one.
+
+**Noted, not changed:** 28 brands in NIQ's list never sold a case in the five years. With no history the
+rules fall through to "stable." They are far under every floor and never appear on The List; they only
+show up on a supplier's page with the "smaller brands" switch on, where "Why this label" reads
+"no sales or shelf on record." Worth a rule ("no sales ever = no label") if Devin agrees.
 
 ---
 

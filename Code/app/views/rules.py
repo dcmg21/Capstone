@@ -29,7 +29,7 @@ A week with no sales in any tracked store has zero cases and **no shelf reading*
 sold), so a brand that comes and goes shows both lines sitting at zero for a stretch, and its shelf numbers for that year rest on the
 weeks it was on a shelf. Brands that, after they first started selling, went half a year or more selling under a case a week are flagged
 **"comes and goes"** (seasonal items, limited runs, relaunches). That is about 3 in 100 brands above the 250-case floor and far
-more below it, which is one more reason the floor exists. The List can hide them.
+more below it, which is one more reason the floor exists. The Brand List can hide them.
 
 A **year-end** is the last week of each 52-week block of data: {", ".join(f"week {52 * (y - 2020)} is the end of {y}" for y in range(2022, year + 1))}.
 A brand gets a label at each year-end it has been around for, once it has at least 52 weeks of history.
@@ -48,7 +48,7 @@ Two for sales, two for shelf. Each compares the brand with **itself**, never wit
 | Shelf | **Shelf vs a year ago** | average %ACV over the last 52 weeks ÷ average %ACV over the 52 weeks before | -10% = in 10% fewer stores than the year before (the same thing as a ratio of 0.90) |
 
 "Best ever" means the best quarter in the brand's whole history up to that year-end, so a young brand's "best" is a
-short history, which is why the List lets you require more years of data.
+short history, which is why the Brand List lets you require more years of data.
 """)
 
 # ---- 3. the three questions -------------------------------------------------------------
@@ -145,7 +145,7 @@ looked like this one a year earlier, about 65 turned out yes. The chances are **
 changing any brand's rank).
 
 Tested on {year}, which the models never saw while learning: 98 of the 100 brands the viable model was most sure about
-were still viable; 66 of the 100 the growing model was most sure about were growing. Details on The Model page.
+were still viable; 66 of the 100 the growing model was most sure about were growing. Details on the How the Model Works page.
 """)
 
 # ---- 6. category context -------------------------------------------------------------------
@@ -194,7 +194,7 @@ st.markdown("### Words")
 st.markdown(f"""
 **Case**: a 9-liter case. **%ACV / shelf**: share of the market's stores carrying the brand, weighted by store size.
 **13-week average**: one quarter, the smoothing a person used when labeling. **Year-end**: the last week of each 52-week block.
-**Labels**: {GLOSS_LINE}. **Viable**: stable or growing. **Size floor**: cases sold last year a brand needs to be on the List;
+**Labels**: {GLOSS_LINE}. **Viable**: stable or growing. **Size floor**: cases sold last year a brand needs to be on the Brand List;
 the models were tested at 250. **Established brands**: two full years of history and 250+ cases the year before.
 """)
 

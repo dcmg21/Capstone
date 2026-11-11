@@ -1,22 +1,25 @@
-"""The List: every scored brand above the floor, ranked, with filters."""
+"""Brand List: every scored brand above the floor, ranked, with filters."""
 
 import io
 
 import pandas as pd
 import streamlit as st
 
-from common import GLOSS_LINE, LABEL_WORDS, explain, footer, header, load_labels, load_predictions, sidebar_controls, sidebar_watchlist, why_label
+from common import (GLOSS_LINE, LABEL_WORDS, explain, filter_state, filters_header, footer, header, load_brand_table, load_labels,
+                    sidebar_controls, sidebar_watchlist, why_label)
 
-header("The List")
-floor = sidebar_controls()
-p = load_predictions()
+header("Brand List")
+top = st.sidebar.container()             # sidebar order: title and Clear, Search, size floor, then the rest
+search_box = st.sidebar.container()
+floor = sidebar_controls(title=False)
+p = load_brand_table()          # predictions plus each brand's supplier
 year = int(p["as_of"].iloc[0])
 if "years_of_data" not in p.columns:
     st.error("The data files are from an older build. From the Code folder run:  python app\\build_app_data.py  "
              "then restart the app.")
     st.stop()
 
-explain("The list", f"""
+explain("The brand list", f"""
 One row per brand that sold at least **{floor} cases** in {year} (the size floor in the sidebar).
 
 - **Label today**: what the brand is at the end of {year}, by the same rules a human used. The labels are about shelf space more than sales: {GLOSS_LINE}.
@@ -26,49 +29,54 @@ One row per brand that sold at least **{floor} cases** in {year} (the size floor
 - **Years of data**: how long the brand has been in the data. A brand with two years can look "at its best" just because there is little history behind it; the filter on the left lets you require more.
 - **Sales vs category** and **Shelf vs category**: the brand's change over the year divided by its category's change (established brands only). 1.00 = moved with the category, 1.20 = did 20% better, 0.85 = lost ground. Added at Eurpac's request; the models see the sales one.
 - **Why this label**: what the label means and the number that decided it, e.g. "lost shelf space: shelf 20% of its best". Every number is defined on the How Labels Work page.
+- **Supplier** (filter, under "Kind of brand"): NIQ's brand owner. The Supplier List compares suppliers side by side.
 - **Rank by "beating its category"** sorts on Sales vs category, highest first. The size floor only hides brands; it does
   not change the category a brand is compared with.
 
-Filter on the left, sort with "Rank by," click a row to open that brand, pin brands to the watchlist, or download the list.
+On the left: search, choose what to rank by, then narrow with the two filter groups ("Clear" puts them all back).
+Click a row to open that brand, pin the top of the ranking to the watchlist, or download the list.
 """)
 
 # ---- filters -----------------------------------------------------------------
-# Streamlit forgets a page's widgets when you leave the page. Each filter starts from the value
-# saved in session_state and saves itself back, so the filters survive a trip to another page.
+# Streamlit forgets a page's widgets when you leave the page. filter_state keeps the values in
+# session_state, so the filters survive a trip to another page and one button can clear them all.
 RANKS = ["chance of growing", "chance of viable", "cases last year", "beating its category"]
-f = st.session_state.setdefault("list_filters", dict(
-    cats=[], tiers=[], labels=[], min_years=1, min_grow=0.0, min_viab=0.0, search="", sort_by=RANKS[0], top_n=10,
-    hide_gaps=False))
+DEFAULTS = dict(search="", sort_by=RANKS[0], min_years=1, min_viab=0.0, min_grow=0.0, hide_gaps=False,
+                cats=[], tiers=[], labels=[], suppliers=[])
+f, key = filter_state("list_filters", DEFAULTS)
+scored_now = p[(p["cases_last_year"] >= floor) & p["chance_growing_next_year"].notna()]
+cats = sorted(p["category"].astype(str).unique())
+tiers = [t for t in ["VALUE", "MID", "PREMIUM", "SUPER PREM", "ULTRA", "LUXURY"] if t in set(p["price_tier"].astype(str))]
+tiers += sorted(set(p["price_tier"].astype(str)) - set(tiers))
+supplier_names = sorted(scored_now["supplier"].dropna().unique())
 with st.sidebar:
-    st.markdown("## Filters")
-    cats = sorted(p["category"].astype(str).unique())
-    f["cats"] = st.multiselect("Category", cats, default=[c for c in f["cats"] if c in cats], placeholder="All categories")
-    tiers = [t for t in ["VALUE", "MID", "PREMIUM", "SUPER PREM", "ULTRA", "LUXURY"] if t in set(p["price_tier"].astype(str))]
-    tiers += sorted(set(p["price_tier"].astype(str)) - set(tiers))
-    f["tiers"] = st.multiselect("Price tier", tiers, default=[t for t in f["tiers"] if t in tiers], placeholder="All tiers")
-    f["labels"] = st.multiselect("Label today", list(LABEL_WORDS), default=f["labels"], format_func=LABEL_WORDS.get,
-                                 placeholder="All labels")
-    f["min_years"] = st.select_slider("Years of data at least", options=[1, 2, 3, 4, 5], value=f["min_years"],
-                                      help="How many years the brand has been in the data. Young brands can look like they are "
-                                           "'at their best' simply because there is little history to compare against.")
-    f["min_viab"] = st.slider(f"Chance viable {year + 1} at least", 0.0, 1.0, f["min_viab"], 0.05,
-                              help="Start here: keep the brands that will still be worth carrying")
-    f["min_grow"] = st.slider(f"Chance growing {year + 1} at least", 0.0, 1.0, f["min_grow"], 0.05,
-                              help="Then: of those, which will take off")
-    f["search"] = st.text_input("Search", value=f["search"], placeholder="brand or family name")
-    if "comes_and_goes" in p.columns:
-        f["hide_gaps"] = st.checkbox("Hide brands that come and go", value=f["hide_gaps"],
-                                     help="Seasonal items, limited runs and relaunches: brands that, after they first started selling, went half a year "
-                                          "or more selling under a case a week. Their 'vs best' and 'vs a year ago' numbers measure a calendar as much as a trend.")
-    f["sort_by"] = st.radio("Rank by", RANKS, index=RANKS.index(f["sort_by"]))
-    st.markdown("## Pin")
-    c_n, c_b = st.columns([1, 2])
-    f["top_n"] = c_n.number_input("Top", 1, 100, f["top_n"], label_visibility="collapsed")
-    pin_clicked = c_b.button("Pin top N to watchlist", width="stretch",
-                             help="Adds the top N of the current ranking to the watchlist")
+    f["search"] = search_box.text_input("Search", value=f["search"], placeholder="brand or family name", key=key("search"))
+    f["sort_by"] = st.selectbox("Rank by", RANKS, index=RANKS.index(f["sort_by"]), key=key("sort_by"))
+    with st.expander("Chances and history", expanded=True):
+        f["min_years"] = st.select_slider("Years of data at least", options=[1, 2, 3, 4, 5], value=f["min_years"], key=key("min_years"),
+                                          help="How many years the brand has been in the data. Young brands can look like they are "
+                                               "'at their best' simply because there is little history to compare against.")
+        f["min_viab"] = st.slider(f"Chance viable {year + 1} at least", 0.0, 1.0, f["min_viab"], 0.05, key=key("min_viab"),
+                                  help="Start here: keep the brands that will still be worth carrying")
+        f["min_grow"] = st.slider(f"Chance growing {year + 1} at least", 0.0, 1.0, f["min_grow"], 0.05, key=key("min_grow"),
+                                  help="Then: of those, which will take off")
+        if "comes_and_goes" in p.columns:
+            f["hide_gaps"] = st.checkbox("Hide brands that come and go", value=f["hide_gaps"], key=key("hide_gaps"),
+                                         help="Seasonal items, limited runs and relaunches: brands that, after they first started selling, went half a year "
+                                              "or more selling under a case a week. Their 'vs best' and 'vs a year ago' numbers measure a calendar as much as a trend.")
+    kind_on = bool(f["cats"] or f["tiers"] or f["labels"] or f["suppliers"])
+    with st.expander("Kind of brand", expanded=kind_on):
+        f["cats"] = st.multiselect("Category", cats, default=[c for c in f["cats"] if c in cats], placeholder="All categories", key=key("cats"))
+        f["tiers"] = st.multiselect("Price tier", tiers, default=[t for t in f["tiers"] if t in tiers], placeholder="All tiers", key=key("tiers"))
+        f["labels"] = st.multiselect("Label today", list(LABEL_WORDS), default=f["labels"], format_func=LABEL_WORDS.get,
+                                     placeholder="All labels", key=key("labels"))
+        if supplier_names:
+            f["suppliers"] = st.multiselect("Supplier", supplier_names, default=[s_ for s_ in f["suppliers"] if s_ in supplier_names],
+                                            placeholder="All suppliers", key=key("suppliers"),
+                                            help="NIQ's brand owner. Type to search. The Supplier List compares them side by side.")
+    filters_header(top, "Find brands", "list_filters", DEFAULTS, f)
 picked, picked_tiers, labels_today = f["cats"], f["tiers"], f["labels"]
-min_years, min_grow, min_viab, search, sort_by, top_n = (f["min_years"], f["min_grow"], f["min_viab"],
-                                                         f["search"], f["sort_by"], f["top_n"])
+min_years, min_grow, min_viab, search, sort_by = f["min_years"], f["min_grow"], f["min_viab"], f["search"], f["sort_by"]
 
 view = p[(p["cases_last_year"] >= floor)].dropna(subset=["chance_growing_next_year"])
 if picked:
@@ -77,6 +85,8 @@ if picked_tiers:
     view = view[view["price_tier"].astype(str).isin(picked_tiers)]
 if labels_today:
     view = view[view["label"].isin(labels_today)]
+if f["suppliers"]:
+    view = view[view["supplier"].isin(f["suppliers"])]
 view = view[(view["chance_growing_next_year"] >= min_grow) & (view["chance_viable_next_year"] >= min_viab)
             & (view["years_of_data"] >= min_years)]
 if f["hide_gaps"] and "comes_and_goes" in view.columns:
@@ -93,11 +103,6 @@ view = view.sort_values(sort_col, ascending=False, na_position="last").reset_ind
 a, c = st.columns([4, 1])
 a.markdown(f"**{len(view):,} brands** at a {floor}-case floor, ranked by **{sort_by}** for {year + 1}. "
            f"Click a row to open that brand.")
-if pin_clicked:
-    for name in view["brand"].head(int(top_n)):
-        if name not in st.session_state["watch"]:
-            st.session_state["watch"].append(name)
-    st.rerun()
 has_cat = "vs_category" in view.columns
 has_shelf = "vs_shelf" in view.columns
 cat_cols = (["vs_category"] if has_cat else []) + (["vs_shelf"] if has_shelf else [])
@@ -170,5 +175,5 @@ if cat_names:
             "Viable": st.column_config.ProgressColumn(format="%.2f", min_value=0, max_value=1),
             "Growing": st.column_config.ProgressColumn(format="%.2f", min_value=0, max_value=1)})
 
-sidebar_watchlist()
+sidebar_watchlist(pin_from=view["brand"].tolist())
 footer()

@@ -1,5 +1,7 @@
-"""Shared pieces: data loading, colors, the header. Every page imports this."""
+"""Shared pieces: data loading, colors, the header, the sidebar. Every page imports this."""
 
+import base64
+import copy
 from pathlib import Path
 
 import pandas as pd
@@ -38,15 +40,66 @@ def load_weekly():
     return pd.read_parquet(DATA / "weekly.parquet")
 
 
-def sidebar_controls():
-    """The size floor, at the top of the sidebar on Home and The List. Remembered as you move around."""
+@st.cache_data(show_spinner=False)
+def load_suppliers():
+    """brand -> supplier (NIQ's BRAND OWNER). Empty if the data was built before suppliers were added."""
+    path = DATA / "suppliers.parquet"
+    return pd.read_parquet(path) if path.exists() else pd.DataFrame(columns=["brand", "supplier"])
+
+
+@st.cache_data(show_spinner=False)
+def load_brand_table():
+    """The predictions table plus each brand's supplier and its cases the year before.
+    The Brand List's supplier filter and both supplier pages read this."""
+    p = load_predictions().merge(load_suppliers(), on="brand", how="left")
+    w = load_weekly()
+    last = int(w["week"].max())
+    prior = w[(w["week"] > last - 104) & (w["week"] <= last - 52)].groupby("brand")["cases"].sum()
+    p["cases_prior_year"] = p["brand"].map(prior).fillna(0.0)
+    return p
+
+
+def filter_state(name, defaults):
+    """A page's filter values, kept in session_state so they survive a trip to another page.
+    Returns the values and a function that names each widget. Use it as
+        f["x"] = st.slider(..., value=f["x"], key=key("x"))
+    clear_filters() changes every widget's name, so they all start again from the defaults."""
+    f = st.session_state.setdefault(name, copy.deepcopy(defaults))
+    for k, v in defaults.items():                       # a filter added after this session started
+        f.setdefault(k, copy.deepcopy(v))
+    gen = st.session_state.setdefault(name + "_gen", 0)
+    return f, (lambda k: f"{name}_{k}_{gen}")
+
+
+def clear_filters(name, defaults):
+    st.session_state[name] = copy.deepcopy(defaults)
+    st.session_state[name + "_gen"] = st.session_state.get(name + "_gen", 0) + 1
+    st.rerun()
+
+
+def filters_header(slot, title, name, defaults, f, skip=("sort_by",)):
+    """Fills the top of a filter block: the title, how many filters are on, and a Clear button."""
+    n_on = sum(f[k] != defaults[k] for k in defaults if k not in skip)
+    with slot:
+        st.markdown(f"## {title}")
+        c1, c2 = st.columns([3, 2], vertical_alignment="center")
+        c1.caption("No filters on" if n_on == 0 else f"{n_on} filter{'s' if n_on > 1 else ''} on")
+        if c2.button("Clear", key=name + "_clear", disabled=n_on == 0, width="stretch", help="Put every filter back to its starting value"):
+            clear_filters(name, defaults)
+
+
+def sidebar_controls(title=True):
+    """The size floor, in the sidebar on Home, the Brand List and the Supplier List. Remembered as you move around.
+    title=False leaves out the "Settings" heading, for pages that put the slider under their own Search box."""
     st.session_state.setdefault("floor", DEFAULT_FLOOR)
     st.session_state.setdefault("watch", [])
     with st.sidebar:
-        st.markdown("## Settings")
+        if title:
+            st.markdown("## Settings")
+        # the key gives the slider one fixed identity; without it every second change was ignored
         st.session_state["floor"] = st.select_slider(
-            "Size floor: cases sold last year", options=FLOORS, value=st.session_state["floor"],
-            help="Brands below this are hidden from the Home numbers and The List (a brand's own page still opens). The models were tested at 250. "
+            "Size floor: cases sold last year", options=FLOORS, value=st.session_state["floor"], key="floor_slider",
+            help="Brands below this are left out of the Home numbers, the Brand List and the Supplier List (a brand's own page still opens). The models were tested at 250. "
                  "Eurpac can set this to whatever 'too small to care about' means to them.")
     return st.session_state["floor"]
 
@@ -58,21 +111,30 @@ def current_floor():
     return st.session_state["floor"]
 
 
-def sidebar_watchlist():
-    """The watchlist, at the bottom of the sidebar on every page."""
+def sidebar_watchlist(pin_from=None):
+    """The watchlist, at the bottom of the sidebar on every page.
+    pin_from: brand names in ranked order. The Brand List passes its current ranking so the top N can be pinned here."""
     watch = st.session_state.setdefault("watch", [])
     with st.sidebar:
         st.markdown(f"## Watchlist ({len(watch)})")
+        if pin_from is not None:
+            c_n, c_b = st.columns([2, 3], vertical_alignment="center")
+            n = c_n.number_input("How many to pin", 1, 100, st.session_state.get("pin_n", 10), label_visibility="collapsed", key="pin_n_box")
+            st.session_state["pin_n"] = n
+            if c_b.button(f"Pin top {n}", width="stretch", help="Adds the top brands of the current ranking to the watchlist"):
+                watch.extend(b for b in pin_from[:int(n)] if b not in watch)
+                st.rerun()
         if watch:
+            box = st.container(height=230) if len(watch) > 6 else st.container()     # a long list scrolls
             for b in watch:
-                c1, c2 = st.columns([5, 1])
+                c1, c2 = box.columns([5, 1], vertical_alignment="center")
                 c1.caption(b)
                 if c2.button("x", key=f"rm_{b}", help="Remove"):
                     watch.remove(b)
                     st.rerun()
             st.download_button("Download watchlist", "\n".join(watch), "watchlist.txt", width="stretch")
         else:
-            st.caption("Pin brands from The List or One Brand.")
+            st.caption("Pin brands from the Brand List or One Brand.")
 
 
 def explain(title, text):
@@ -81,20 +143,22 @@ def explain(title, text):
         st.markdown(text)
 
 
+@st.cache_data(show_spinner=False)
+def _logo(name):
+    """A logo file as an inline image source, or None if the file is not there."""
+    path = ASSETS / name
+    return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode() if path.exists() else None
+
+
 def header(title):
-    left, mid, right = st.columns([2, 5, 2])
-    with left:
-        st.image(str(ASSETS / "eurpac_logo.png"), width=190)
-    with mid:
-        st.markdown(f'<div class="hdr"><div class="hdr-app">{APP_NAME}</div>'
-                    f'<div class="hdr-page">{title}</div></div>', unsafe_allow_html=True)
-    with right:
-        smu = ASSETS / "smu_logo.png"
-        if smu.exists():
-            st.image(str(smu), width=150)
-        else:
-            st.markdown('<div class="smu-text">SMU<span>Data Science</span></div>', unsafe_allow_html=True)
-    st.markdown('<hr class="hdr-rule">', unsafe_allow_html=True)
+    """Eurpac logo, app name and page, SMU mark: one row, all three centered on the same line."""
+    eurpac, smu = _logo("eurpac_logo.png"), _logo("smu_logo.png")
+    left = f'<img src="{eurpac}" alt="Eurpac">' if eurpac else ""
+    right = (f'<img src="{smu}" alt="SMU">' if smu else
+             '<div class="smu-bar"></div><div class="smu-text">SMU<span>Data Science</span></div>')
+    st.markdown(f'<div class="hdr-row"><div class="hdr-l">{left}</div>'
+                f'<div class="hdr"><div class="hdr-app">{APP_NAME}</div><div class="hdr-page">{title}</div></div>'
+                f'<div class="hdr-r">{right}</div></div><hr class="hdr-rule">', unsafe_allow_html=True)
 
 
 TOL = 0.0005   # the stored numbers are rounded to 3 decimals; the rules ran on the exact ones, so allow for that at a boundary
@@ -125,6 +189,8 @@ def shelf_change(tr):
 def short_reason(r):
     """Which number decided the label, in a few words. r has sales_vs_best, stores_vs_best, store_trend, label."""
     sb, st_, tr = r["sales_vs_best"], r["stores_vs_best"], r["store_trend"]
+    if pd.isna(sb) or pd.isna(st_):
+        return "no sales or shelf on record"            # a brand in NIQ's list that never sold: there is no best to compare with
     if r["label"] == "discontinued":
         return f"sales {sb:.0%} of its best, shelf {st_:.0%} of its best"
     if r["label"] == "growing":
@@ -153,12 +219,19 @@ CSS = f"""
   header[data-testid="stHeader"] {{ background: transparent; height: 0; }}
   [data-testid="stToolbar"], [data-testid="stDecoration"], #MainMenu {{ display: none; }}
   .block-container {{ padding-top: 2.2rem; padding-bottom: 2rem; max-width: 1400px; }}
-  .hdr {{ text-align:center; }}
-  .hdr-app {{ font-size: 30px; font-weight: 800; color: {EURPAC_GRAY}; letter-spacing: .02em; }}
-  .hdr-page {{ font-size: 15px; color: {EURPAC_BLUE}; text-transform: uppercase; letter-spacing: .12em; margin-top: 2px; }}
+  .hdr-row {{ display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 4px 0 8px; }}
+  .hdr-l {{ justify-self: start; display: flex; align-items: center; min-width: 0; }}
+  .hdr-l img {{ height: 34px; width: auto; max-width: 100%; display: block; }}
+  .hdr-r {{ justify-self: end; display: flex; align-items: center; gap: 10px; }}
+  .hdr-r img {{ height: 44px; width: auto; display: block; }}
+  .hdr {{ text-align: center; white-space: nowrap; }}
+  .hdr-app {{ font-size: 32px; font-weight: 800; color: {EURPAC_GRAY}; letter-spacing: .02em; line-height: 1.05; }}
+  .hdr-page {{ font-size: 14px; color: {EURPAC_BLUE}; text-transform: uppercase; letter-spacing: .12em; margin-top: 4px; }}
   .hdr-rule {{ border: none; border-top: 3px solid {EURPAC_RED}; margin: 6px 0 18px; }}
-  .smu-text {{ text-align:right; font-size: 26px; font-weight: 800; color: {SMU_NAVY}; line-height: 1; }}
-  .smu-text span {{ display:block; font-size: 11px; font-weight: 600; color: {SMU_RED}; letter-spacing: .14em; text-transform: uppercase; margin-top: 3px; }}
+  .smu-bar {{ width: 3px; height: 38px; background: {SMU_RED}; border-radius: 2px; flex: none; }}
+  .smu-text {{ font-size: 30px; font-weight: 800; color: {SMU_NAVY}; line-height: 1; }}
+  .smu-text span {{ display: block; font-size: 10px; font-weight: 700; color: {SMU_RED}; letter-spacing: .1em; text-transform: uppercase;
+                    margin-top: 4px; white-space: nowrap; }}
   .chip {{ display:inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }}
   .big {{ font-size: 34px; font-weight: 800; color: {EURPAC_GRAY}; line-height: 1.1; }}
   .big-label {{ font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6B7280; }}
@@ -172,7 +245,12 @@ CSS = f"""
   table.score .fired {{ font-weight: 700; padding: 2px 8px; border-radius: 6px; border: 2px solid {EURPAC_RED}; }}
   table.score td.rowname span {{ display: block; font-weight: 400; font-size: 12px; color: #9CA3AF; }}
   section[data-testid="stSidebar"] {{ background: #F8FAFC; border-right: 1px solid #E5E7EB; }}
-  section[data-testid="stSidebar"] h2 {{ color: {EURPAC_GRAY}; font-size: 16px; }}
+  section[data-testid="stSidebar"] h2 {{ color: #6B7280; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+                                         border-top: 1px solid #E5E7EB; padding-top: 14px; margin-top: 4px; }}
+  section[data-testid="stSidebar"] [data-testid="stExpander"] details {{ background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 10px; }}
+  section[data-testid="stSidebar"] [data-testid="stExpander"] summary {{ font-weight: 600; color: {EURPAC_GRAY}; }}
+  .card.small .big {{ font-size: 26px; }}
+  .sup-name {{ font-size: 26px; font-weight: 800; color: {EURPAC_GRAY}; line-height: 1.15; }}
   section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a span {{ font-size: 15px; }}
   div[data-baseweb="tag"] {{ background: {EURPAC_BLUE}22 !important; color: {EURPAC_GRAY} !important; }}
   div[data-baseweb="tag"] span {{ color: {EURPAC_GRAY} !important; }}

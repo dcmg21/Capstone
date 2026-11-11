@@ -6,8 +6,8 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from common import (EURPAC_BLUE, GLOSS_LINE, LABEL_COLORS, LABEL_GLOSS, LABEL_WORDS, current_floor, explain, footer,
-                    decline_fired, header, label_chip, load_labels, load_predictions, load_weekly, short_reason, sidebar_watchlist,
-                    times)
+                    decline_fired, header, label_chip, load_labels, load_predictions, load_suppliers, load_weekly, short_reason,
+                    sidebar_watchlist, times)
 
 header("One Brand")
 floor = current_floor()
@@ -96,8 +96,8 @@ under the chart shows every calculation, and the **How Labels Work** page explai
 names = p.sort_values("cases_last_year", ascending=False)["brand"].tolist()
 default = st.session_state.get("brand", names[0])
 c_pick, c_pin = st.columns([5, 1])
-brand = c_pick.selectbox("Brand", names, index=names.index(default) if default in names else 0,
-                         help="Type to search. Sorted by size.")
+brand = c_pick.selectbox("Brand", names, index=names.index(default) if default in names else 0, key="brand_pick",
+                         help="Type to search. Sorted by size.")       # the key keeps one identity, so every pick registers
 st.session_state["brand"] = brand
 watch = st.session_state["watch"]
 c_pin.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
@@ -122,6 +122,11 @@ c1, c2, c3, c4 = st.columns([3, 1.2, 1.2, 1.2])
 with c1:
     st.markdown(f"### {brand}")
     st.markdown(f"{row['family']} · {cat} · {row['price_tier']}")
+    supplier = load_suppliers().set_index("brand")["supplier"].get(brand)       # NIQ's brand owner, if the data has it
+    if isinstance(supplier, str) and st.button(f"Supplier: {supplier.title()}", icon=":material/domain:", type="tertiary",
+                                               help="Open this supplier: its numbers and every brand it owns"):
+        st.session_state["supplier"] = supplier
+        st.switch_page("views/supplier.py")
 scored = bool(row[["chance_growing_next_year"]].notna().iloc[0])
 for col, val, text, tip in [
     (c2, f"{row['cases_last_year']:,.0f}", f"cases in {year}", "9-liter cases sold in the last 52 weeks"),
@@ -146,7 +151,7 @@ if bool(row.get("comes_and_goes", False)):
 if not scored:
     st.info("Sold under 12 cases last year, so the model gives no chance. The label and chart still apply.")
 elif row["cases_last_year"] < floor:
-    st.info(f"This brand is below your {floor}-case floor, so it is hidden on The List. Shown here because you asked for it.")
+    st.info(f"This brand is below your {floor}-case floor, so it is hidden on the Brand List. Shown here because you asked for it.")
 
 # ---- the chart (Kristin's view) -------------------------------------------------
 overlay = st.toggle(f"Show the {cat_l} average, scaled to this brand", value=False,
